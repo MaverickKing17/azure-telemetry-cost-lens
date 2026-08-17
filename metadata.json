@@ -1,0 +1,6 @@
+{
+  "name": "GTA HVAC Azure Cloud Cost Command Center",
+  "description": "Specialized Azure Cost Visibility & IoT Telemetry Telematics Dashboard for GTA HVAC and Mechanical Service Contractors.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

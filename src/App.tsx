@@ -1,0 +1,236 @@
+import React, { useState } from 'react';
+import { 
+  MOCK_AZURE_RESOURCES, 
+  INITIAL_ANOMALIES, 
+  GTA_ZONE_SUMMARIES, 
+  EQUIPMENT_SUMMARIES, 
+  BUDGET_RULES 
+} from './data/mockAzureHvacData';
+import { AzureCostItem, AnomalyAlert, EquipmentCostSummary } from './types/cost-types';
+import { CommandHeader } from './components/CommandHeader';
+import { Sidebar, ActiveTab } from './components/Sidebar';
+import { AnomalyAlertCard } from './components/AnomalyAlertCard';
+import { CostByEquipmentChart } from './components/CostByEquipmentChart';
+import { ResourceBreakdownTable } from './components/ResourceBreakdownTable';
+import { GtaSiteTelemetryMap } from './components/GtaSiteTelemetryMap';
+import { FleetTelemetryView } from './components/FleetTelemetryView';
+import { ThresholdAlertsView } from './components/ThresholdAlertsView';
+import { OptimizationSimulator } from './components/OptimizationSimulator';
+import { ExportReportsView } from './components/ExportReportsView';
+import { ResourceDetailModal } from './components/ResourceDetailModal';
+import { Sparkles } from 'lucide-react';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [selectedZone, setSelectedZone] = useState<string>('all');
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
+  const [anomalies, setAnomalies] = useState<AnomalyAlert[]>(INITIAL_ANOMALIES);
+  const [resources, setResources] = useState<AzureCostItem[]>(MOCK_AZURE_RESOURCES);
+  const [equipmentData, setEquipmentData] = useState<EquipmentCostSummary[]>(EQUIPMENT_SUMMARIES);
+  const [selectedResourceModal, setSelectedResourceModal] = useState<AzureCostItem | null>(null);
+  
+  // Real-time simulated Azure sync state
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string>('Today, 14:22 EST');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Financial calculations
+  const totalSpentCad = resources.reduce((sum, res) => sum + res.costCadMtd, 0);
+  const monthlyBudgetCad = 17500.00;
+  
+  // Compute projected close based on anomaly status
+  const activeCriticalAnomaly = anomalies.find(a => a.severity === 'critical' && a.status === 'active');
+  const anomalyProjectedImpact = activeCriticalAnomaly ? activeCriticalAnomaly.estimatedCostImpactCad * 14 : 0;
+  const projectedCloseCad = 17200.00 + anomalyProjectedImpact;
+  
+  const totalMonitoredUnits = resources.reduce((sum, res) => sum + res.monitoredUnitsCount, 0);
+  const avgCostPerUnitCad = totalMonitoredUnits > 0 ? totalSpentCad / totalMonitoredUnits : 4.18;
+
+  // Filter resources by selected GTA zone
+  const displayedResources = selectedZone === 'all' 
+    ? resources 
+    : resources.filter(r => r.gtaZone.toLowerCase().includes(selectedZone.toLowerCase()));
+
+  // Trigger simulated Azure API Sync
+  const handleTriggerSync = () => {
+    setIsSyncing(true);
+    showToast('Connecting to Azure Resource Manager API (Canada Central)...');
+    
+    setTimeout(() => {
+      setIsSyncing(false);
+      setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' EST');
+      showToast('✅ Azure Cost Management API data synchronized');
+    }, 1000);
+  };
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+  };
+
+  // Handle Anomaly Auto-Remediation
+  const handleRemediateAnomaly = (anomalyId: string) => {
+    setAnomalies(prev => prev.map(a => {
+      if (a.id === anomalyId) {
+        return {
+          ...a,
+          status: 'remediated',
+          estimatedCostImpactCad: 0,
+        };
+      }
+      return a;
+    }));
+
+    setResources(prev => prev.map(res => {
+      if (res.id === 'res-01') {
+        return {
+          ...res,
+          status: 'Optimal',
+          statusDescription: 'Edge telemetry sampling throttled to 15s standard rate',
+          costCadProjected: 3500.00,
+          savingsPotentialCad: 0,
+        };
+      }
+      return res;
+    }));
+
+    setEquipmentData(prev => prev.map(eq => {
+      if (eq.category === 'Rooftop Units (RTUs)') {
+        return {
+          ...eq,
+          deltaPercentVsLastMonth: 1.2,
+          avgPingRateSec: 15,
+        };
+      }
+      return eq;
+    }));
+
+    showToast('⚡ Device Twin patch applied: 48 RTU Modems reverted to 15s rate. Savings: +$145.20 CAD/day');
+  };
+
+  const handleAcknowledgeAnomaly = (anomalyId: string) => {
+    setAnomalies(prev => prev.map(a => a.id === anomalyId ? { ...a, status: 'acknowledged' } : a));
+    showToast('Alert acknowledged by technician.');
+  };
+
+  const handleSelectTag = (tag: string) => {
+    if (selectedTagFilter === tag) {
+      setSelectedTagFilter(null);
+      showToast(`Cleared filter for ${tag}`);
+    } else {
+      setSelectedTagFilter(tag);
+      showToast(`Filtered resources by: ${tag}`);
+    }
+  };
+
+  const activeAnomalyCount = anomalies.filter(a => a.status === 'active').length;
+
+  return (
+    <div className="min-h-screen bg-[#0B0F17] text-slate-200 flex flex-col font-sans selection:bg-cyan-500 selection:text-[#0B0F17]">
+      {/* Toast Notification Ticker */}
+      {toastMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-[#11141C] border border-cyan-500/40 text-cyan-400 px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2.5 text-xs font-mono">
+          <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Top Command Header */}
+      <CommandHeader
+        totalSpentCad={totalSpentCad}
+        projectedCloseCad={projectedCloseCad}
+        monthlyBudgetCad={monthlyBudgetCad}
+        monitoredUnits={totalMonitoredUnits}
+        avgCostPerUnitCad={avgCostPerUnitCad}
+        selectedZone={selectedZone}
+        onSelectZone={setSelectedZone}
+        zones={GTA_ZONE_SUMMARIES}
+        isSyncing={isSyncing}
+        onTriggerSync={handleTriggerSync}
+        lastSyncTime={lastSyncTime}
+        hasActiveAnomaly={activeCriticalAnomaly !== undefined}
+        onQuickOptimize={() => setActiveTab('optimization')}
+      />
+
+      {/* Main Workspace Layout */}
+      <div className="flex-1 flex flex-col lg:flex-row">
+        {/* Navigation Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          activeAnomalyCount={activeAnomalyCount}
+          selectedZone={selectedZone}
+        />
+
+        {/* Viewport Canvas */}
+        <main className="flex-1 p-6 space-y-6 overflow-y-auto max-w-7xl mx-auto w-full">
+          {activeTab === 'dashboard' && (
+            <div className="space-y-6">
+              {/* Top Dashboard Grid (Chart + Anomaly Card arranged cleanly) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-8">
+                  <CostByEquipmentChart
+                    equipmentData={equipmentData}
+                    onSelectTag={handleSelectTag}
+                  />
+                </div>
+
+                <div className="lg:col-span-4">
+                  <AnomalyAlertCard
+                    anomalies={anomalies}
+                    onRemediate={handleRemediateAnomaly}
+                    onAcknowledge={handleAcknowledgeAnomaly}
+                  />
+                </div>
+              </div>
+
+              {/* Service Breakdown & Utility Table */}
+              <ResourceBreakdownTable
+                resources={displayedResources}
+                onSelectResource={(res) => setSelectedResourceModal(res)}
+                selectedTagFilter={selectedTagFilter}
+              />
+
+              {/* GTA Regional Telemetry Nodes Map */}
+              <GtaSiteTelemetryMap
+                zones={GTA_ZONE_SUMMARIES}
+                selectedZone={selectedZone}
+                onSelectZone={setSelectedZone}
+              />
+            </div>
+          )}
+
+          {activeTab === 'fleet-telemetry' && (
+            <FleetTelemetryView
+              equipmentData={equipmentData}
+            />
+          )}
+
+          {activeTab === 'alert-thresholds' && (
+            <ThresholdAlertsView
+              initialRules={BUDGET_RULES}
+            />
+          )}
+
+          {activeTab === 'optimization' && (
+            <OptimizationSimulator />
+          )}
+
+          {activeTab === 'export-reports' && (
+            <ExportReportsView
+              resources={resources}
+            />
+          )}
+        </main>
+      </div>
+
+      {/* Resource Detail Modal */}
+      <ResourceDetailModal
+        resource={selectedResourceModal}
+        onClose={() => setSelectedResourceModal(null)}
+      />
+    </div>
+  );
+}
