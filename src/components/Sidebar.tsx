@@ -67,12 +67,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-full lg:w-64 bg-[#0B0F17] border-r border-slate-800 flex flex-col justify-between shrink-0">
+    <aside className="w-64 h-full flex-shrink-0 bg-[#0B0F17] border-r border-white/10 flex flex-col justify-between overflow-y-auto">
       {/* Brand & Navigation */}
       <div>
         {/* Brand Header */}
-        <div className="p-5 border-b border-slate-800/80 flex items-center gap-3">
-          <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+        <div className="p-6 border-b border-white/10 flex items-center gap-3">
+          <div className="w-8 h-8 bg-cyan-500 rounded flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)]">
             <svg className="w-5 h-5 text-[#0B0F17]" fill="currentColor" viewBox="0 0 24 24">
               <path d="M13 3v6h8V3h-8zm6 4h-4V5h4v2zm-6 4v6h8v-6h-8zm6 4h-4v-2h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2zM3 3v6h8V3H3zm6 4H5V5h4v2z" />
             </svg>
@@ -88,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Links */}
-        <nav className="p-3 space-y-1 mt-2">
+        <nav className="p-4 space-y-2 mt-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -103,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-cyan-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-cyan-400' : 'text-slate-400'}`} />
                   <span className="text-xs font-semibold tracking-tight truncate">
                     {item.label}
                   </span>
@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Operational Territory Widget */}
-        <div className="mx-3 my-2 p-3 rounded-xl bg-[#11141C] border border-slate-800">
+        <div className="mx-4 my-2 p-3 rounded-xl bg-[#11141C] border border-white/10">
           <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-2">
             <span className="flex items-center gap-1 text-cyan-400">
               <MapPin className="w-3 h-3" />
@@ -153,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Azure Status Footer */}
-      <div className="p-4 m-3 bg-[#11141C] border border-slate-800 rounded-xl space-y-2">
+      <div className="p-4 m-4 bg-[#11141C] border border-white/10 rounded-xl space-y-2">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           <span className="text-xs font-semibold text-slate-300 font-mono">CONNECTED TO AZURE</span>
@@ -162,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           Last sync: Today, 14:22 EST Toronto/GTA Instance
         </p>
 
-        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
           <span className="flex items-center gap-1 text-emerald-400">
             <ShieldCheck className="w-3 h-3" />
             <span>TLS 1.3 Active</span>

@@ -128,7 +128,7 @@ export default function App() {
   const activeAnomalyCount = anomalies.filter(a => a.status === 'active').length;
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-200 flex flex-col font-sans selection:bg-cyan-500 selection:text-[#0B0F17]">
+    <div className="flex h-screen w-screen bg-[#0B0F17] text-white overflow-hidden m-0 p-0 top-0 left-0 absolute font-sans selection:bg-cyan-500 selection:text-[#0B0F17]">
       {/* Toast Notification Ticker */}
       {toastMessage && (
         <div className="fixed top-4 right-4 z-50 bg-[#11141C] border border-cyan-500/40 text-cyan-400 px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2.5 text-xs font-mono">
@@ -137,47 +137,47 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Command Header */}
-      <CommandHeader
-        totalSpentCad={totalSpentCad}
-        projectedCloseCad={projectedCloseCad}
-        monthlyBudgetCad={monthlyBudgetCad}
-        monitoredUnits={totalMonitoredUnits}
-        avgCostPerUnitCad={avgCostPerUnitCad}
+      {/* Fixed Left Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        activeAnomalyCount={activeAnomalyCount}
         selectedZone={selectedZone}
-        onSelectZone={setSelectedZone}
-        zones={GTA_ZONE_SUMMARIES}
-        isSyncing={isSyncing}
-        onTriggerSync={handleTriggerSync}
-        lastSyncTime={lastSyncTime}
-        hasActiveAnomaly={activeCriticalAnomaly !== undefined}
-        onQuickOptimize={() => setActiveTab('optimization')}
       />
 
-      {/* Main Workspace Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Navigation Sidebar */}
-        <Sidebar
-          activeTab={activeTab}
-          onSelectTab={setActiveTab}
-          activeAnomalyCount={activeAnomalyCount}
+      {/* Main Content Area (Expands to fill all remaining space edge-to-edge) */}
+      <div className="flex-1 w-full h-full overflow-y-auto min-w-0 bg-[#0B0F17] flex flex-col">
+        {/* Top Command Header */}
+        <CommandHeader
+          totalSpentCad={totalSpentCad}
+          projectedCloseCad={projectedCloseCad}
+          monthlyBudgetCad={monthlyBudgetCad}
+          monitoredUnits={totalMonitoredUnits}
+          avgCostPerUnitCad={avgCostPerUnitCad}
           selectedZone={selectedZone}
+          onSelectZone={setSelectedZone}
+          zones={GTA_ZONE_SUMMARIES}
+          isSyncing={isSyncing}
+          onTriggerSync={handleTriggerSync}
+          lastSyncTime={lastSyncTime}
+          hasActiveAnomaly={activeCriticalAnomaly !== undefined}
+          onQuickOptimize={() => setActiveTab('optimization')}
         />
 
-        {/* Viewport Canvas */}
-        <main className="flex-1 p-6 space-y-6 overflow-y-auto max-w-7xl mx-auto w-full">
+        {/* Scrollable Viewport Canvas */}
+        <main className="flex-1 w-full overflow-y-auto p-8 bg-[#0B0F17] space-y-6">
           {activeTab === 'dashboard' && (
-            <div className="space-y-6">
+            <div className="w-full space-y-6">
               {/* Top Dashboard Grid (Chart + Anomaly Card arranged cleanly) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full">
+                <div className="xl:col-span-8 w-full">
                   <CostByEquipmentChart
                     equipmentData={equipmentData}
                     onSelectTag={handleSelectTag}
                   />
                 </div>
 
-                <div className="lg:col-span-4">
+                <div className="xl:col-span-4 w-full">
                   <AnomalyAlertCard
                     anomalies={anomalies}
                     onRemediate={handleRemediateAnomaly}
@@ -187,41 +187,53 @@ export default function App() {
               </div>
 
               {/* Service Breakdown & Utility Table */}
-              <ResourceBreakdownTable
-                resources={displayedResources}
-                onSelectResource={(res) => setSelectedResourceModal(res)}
-                selectedTagFilter={selectedTagFilter}
-              />
+              <div className="w-full">
+                <ResourceBreakdownTable
+                  resources={displayedResources}
+                  onSelectResource={(res) => setSelectedResourceModal(res)}
+                  selectedTagFilter={selectedTagFilter}
+                />
+              </div>
 
               {/* GTA Regional Telemetry Nodes Map */}
-              <GtaSiteTelemetryMap
-                zones={GTA_ZONE_SUMMARIES}
-                selectedZone={selectedZone}
-                onSelectZone={setSelectedZone}
-              />
+              <div className="w-full">
+                <GtaSiteTelemetryMap
+                  zones={GTA_ZONE_SUMMARIES}
+                  selectedZone={selectedZone}
+                  onSelectZone={setSelectedZone}
+                />
+              </div>
             </div>
           )}
 
           {activeTab === 'fleet-telemetry' && (
-            <FleetTelemetryView
-              equipmentData={equipmentData}
-            />
+            <div className="w-full">
+              <FleetTelemetryView
+                equipmentData={equipmentData}
+              />
+            </div>
           )}
 
           {activeTab === 'alert-thresholds' && (
-            <ThresholdAlertsView
-              initialRules={BUDGET_RULES}
-            />
+            <div className="w-full">
+              <ThresholdAlertsView
+                initialRules={BUDGET_RULES}
+              />
+            </div>
           )}
 
           {activeTab === 'optimization' && (
-            <OptimizationSimulator />
+            <div className="w-full">
+              <OptimizationSimulator />
+            </div>
           )}
 
           {activeTab === 'export-reports' && (
-            <ExportReportsView
-              resources={resources}
-            />
+            <div className="w-full">
+              <ExportReportsView
+                resources={resources}
+              />
+            </div>
           )}
         </main>
       </div>
