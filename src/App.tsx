@@ -20,7 +20,7 @@ import { ExportReportsView } from './components/ExportReportsView';
 import { ResourceDetailModal } from './components/ResourceDetailModal';
 import { Sparkles } from 'lucide-react';
 
-export default function App() {
+export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [selectedZone, setSelectedZone] = useState<string>('all');
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
@@ -128,121 +128,127 @@ export default function App() {
   const activeAnomalyCount = anomalies.filter(a => a.status === 'active').length;
 
   return (
-    <div className="flex h-screen w-screen bg-[#0B0F17] text-white overflow-hidden m-0 p-0 top-0 left-0 absolute font-sans selection:bg-cyan-500 selection:text-[#0B0F17]">
-      {/* Toast Notification Ticker */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[#11141C] border border-cyan-500/40 text-cyan-400 px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2.5 text-xs font-mono">
-          <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span>{toastMessage}</span>
+    <>
+      <style>{`body, html, #root { background-color: #0B0F17 !important; margin: 0; padding: 0; width: 100vw; height: 100vh; overflow-x: hidden; }`}</style>
+      
+      <div className="flex min-h-[100dvh] min-w-[100vw] bg-[#0B0F17] text-white m-0 p-0 font-sans selection:bg-cyan-500 selection:text-[#0B0F17]">
+        {/* Toast Notification Ticker */}
+        {toastMessage && (
+          <div className="fixed top-4 right-4 z-50 bg-[#11141C] border border-cyan-500/40 text-cyan-400 px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2.5 text-xs font-mono">
+            <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
+        {/* The Sidebar */}
+        <div className="w-64 flex-shrink-0 h-screen bg-[#0B0F17] border-r border-white/10 flex flex-col">
+          <Sidebar
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+            activeAnomalyCount={activeAnomalyCount}
+            selectedZone={selectedZone}
+          />
         </div>
-      )}
 
-      {/* Fixed Left Sidebar */}
-      <Sidebar
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        activeAnomalyCount={activeAnomalyCount}
-        selectedZone={selectedZone}
-      />
+        {/* The Main Dashboard Area */}
+        <div className="flex-1 h-screen bg-[#0B0F17] p-8 overflow-y-auto flex flex-col space-y-6">
+          {/* Top Command Header */}
+          <CommandHeader
+            totalSpentCad={totalSpentCad}
+            projectedCloseCad={projectedCloseCad}
+            monthlyBudgetCad={monthlyBudgetCad}
+            monitoredUnits={totalMonitoredUnits}
+            avgCostPerUnitCad={avgCostPerUnitCad}
+            selectedZone={selectedZone}
+            onSelectZone={setSelectedZone}
+            zones={GTA_ZONE_SUMMARIES}
+            isSyncing={isSyncing}
+            onTriggerSync={handleTriggerSync}
+            lastSyncTime={lastSyncTime}
+            hasActiveAnomaly={activeCriticalAnomaly !== undefined}
+            onQuickOptimize={() => setActiveTab('optimization')}
+          />
 
-      {/* Main Content Area (Expands to fill all remaining space edge-to-edge) */}
-      <div className="flex-1 w-full h-full overflow-y-auto min-w-0 bg-[#0B0F17] flex flex-col">
-        {/* Top Command Header */}
-        <CommandHeader
-          totalSpentCad={totalSpentCad}
-          projectedCloseCad={projectedCloseCad}
-          monthlyBudgetCad={monthlyBudgetCad}
-          monitoredUnits={totalMonitoredUnits}
-          avgCostPerUnitCad={avgCostPerUnitCad}
-          selectedZone={selectedZone}
-          onSelectZone={setSelectedZone}
-          zones={GTA_ZONE_SUMMARIES}
-          isSyncing={isSyncing}
-          onTriggerSync={handleTriggerSync}
-          lastSyncTime={lastSyncTime}
-          hasActiveAnomaly={activeCriticalAnomaly !== undefined}
-          onQuickOptimize={() => setActiveTab('optimization')}
+          {/* Viewport Content */}
+          <div className="w-full space-y-6">
+            {activeTab === 'dashboard' && (
+              <div className="w-full space-y-6">
+                {/* Top Dashboard Grid */}
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full">
+                  <div className="xl:col-span-8 w-full">
+                    <CostByEquipmentChart
+                      equipmentData={equipmentData}
+                      onSelectTag={handleSelectTag}
+                    />
+                  </div>
+
+                  <div className="xl:col-span-4 w-full">
+                    <AnomalyAlertCard
+                      anomalies={anomalies}
+                      onRemediate={handleRemediateAnomaly}
+                      onAcknowledge={handleAcknowledgeAnomaly}
+                    />
+                  </div>
+                </div>
+
+                {/* Service Breakdown & Utility Table */}
+                <div className="w-full">
+                  <ResourceBreakdownTable
+                    resources={displayedResources}
+                    onSelectResource={(res) => setSelectedResourceModal(res)}
+                    selectedTagFilter={selectedTagFilter}
+                  />
+                </div>
+
+                {/* GTA Regional Telemetry Nodes Map */}
+                <div className="w-full">
+                  <GtaSiteTelemetryMap
+                    zones={GTA_ZONE_SUMMARIES}
+                    selectedZone={selectedZone}
+                    onSelectZone={setSelectedZone}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'fleet-telemetry' && (
+              <div className="w-full">
+                <FleetTelemetryView
+                  equipmentData={equipmentData}
+                />
+              </div>
+            )}
+
+            {activeTab === 'alert-thresholds' && (
+              <div className="w-full">
+                <ThresholdAlertsView
+                  initialRules={BUDGET_RULES}
+                />
+              </div>
+            )}
+
+            {activeTab === 'optimization' && (
+              <div className="w-full">
+                <OptimizationSimulator />
+              </div>
+            )}
+
+            {activeTab === 'export-reports' && (
+              <div className="w-full">
+                <ExportReportsView
+                  resources={resources}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Resource Detail Modal */}
+        <ResourceDetailModal
+          resource={selectedResourceModal}
+          onClose={() => setSelectedResourceModal(null)}
         />
-
-        {/* Scrollable Viewport Canvas */}
-        <main className="flex-1 w-full overflow-y-auto p-8 bg-[#0B0F17] space-y-6">
-          {activeTab === 'dashboard' && (
-            <div className="w-full space-y-6">
-              {/* Top Dashboard Grid (Chart + Anomaly Card arranged cleanly) */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full">
-                <div className="xl:col-span-8 w-full">
-                  <CostByEquipmentChart
-                    equipmentData={equipmentData}
-                    onSelectTag={handleSelectTag}
-                  />
-                </div>
-
-                <div className="xl:col-span-4 w-full">
-                  <AnomalyAlertCard
-                    anomalies={anomalies}
-                    onRemediate={handleRemediateAnomaly}
-                    onAcknowledge={handleAcknowledgeAnomaly}
-                  />
-                </div>
-              </div>
-
-              {/* Service Breakdown & Utility Table */}
-              <div className="w-full">
-                <ResourceBreakdownTable
-                  resources={displayedResources}
-                  onSelectResource={(res) => setSelectedResourceModal(res)}
-                  selectedTagFilter={selectedTagFilter}
-                />
-              </div>
-
-              {/* GTA Regional Telemetry Nodes Map */}
-              <div className="w-full">
-                <GtaSiteTelemetryMap
-                  zones={GTA_ZONE_SUMMARIES}
-                  selectedZone={selectedZone}
-                  onSelectZone={setSelectedZone}
-                />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'fleet-telemetry' && (
-            <div className="w-full">
-              <FleetTelemetryView
-                equipmentData={equipmentData}
-              />
-            </div>
-          )}
-
-          {activeTab === 'alert-thresholds' && (
-            <div className="w-full">
-              <ThresholdAlertsView
-                initialRules={BUDGET_RULES}
-              />
-            </div>
-          )}
-
-          {activeTab === 'optimization' && (
-            <div className="w-full">
-              <OptimizationSimulator />
-            </div>
-          )}
-
-          {activeTab === 'export-reports' && (
-            <div className="w-full">
-              <ExportReportsView
-                resources={resources}
-              />
-            </div>
-          )}
-        </main>
       </div>
-
-      {/* Resource Detail Modal */}
-      <ResourceDetailModal
-        resource={selectedResourceModal}
-        onClose={() => setSelectedResourceModal(null)}
-      />
-    </div>
+    </>
   );
 }
