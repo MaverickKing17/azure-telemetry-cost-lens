@@ -7,23 +7,24 @@ body,
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #0B0F17;
-  color: #ffffff;
+  background-color: #1b1a19;
+  color: #f3f2f1;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
   overflow: hidden;
 }
 
-/* Custom scrollbar for dark high-tech command center */
+/* Custom scrollbar for Microsoft Azure Dark Theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F17;
+  background: #1b1a19;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #3b3a39;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #605e5c;
 }

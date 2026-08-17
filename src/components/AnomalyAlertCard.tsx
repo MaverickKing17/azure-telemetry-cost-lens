@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  Zap, 
+  AlertOctagon, 
   CheckCircle2, 
-  Info, 
-  Check, 
-  ShieldAlert, 
-  Sparkles, 
-  RefreshCw,
-  ExternalLink
+  Flame, 
+  Zap, 
+  Radio, 
+  Clock, 
+  ChevronRight, 
+  ShieldAlert,
+  ArrowRight
 } from 'lucide-react';
 import { AnomalyAlert } from '../types/cost-types';
-import confetti from 'canvas-confetti';
 
 interface AnomalyAlertCardProps {
   anomalies: AnomalyAlert[];
@@ -23,204 +23,135 @@ export const AnomalyAlertCard: React.FC<AnomalyAlertCardProps> = ({
   onRemediate,
   onAcknowledge,
 }) => {
-  const [selectedAnomalyId, setSelectedAnomalyId] = useState<string>(anomalies[0]?.id || '');
-  const [isApplyingFix, setIsApplyingFix] = useState(false);
-  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
-
-  const activeAnomaly = anomalies.find(a => a.id === selectedAnomalyId) || anomalies[0];
-
-  if (!activeAnomaly) {
-    return (
-      <div className="bg-[#11141C] border border-slate-800 rounded-xl p-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <span>All GTA Telemetry Streams Nominal</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-green-500/10 text-green-400 font-mono border border-green-500/20">
-                0 Active Spikes
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              IoT Hub and Cosmos DB telemetry ingestion are tracking within normal SLA budget thresholds.
-            </p>
-          </div>
-        </div>
-        <div className="text-xs font-mono text-green-400 bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-500/20">
-          Steady State: $0.00 Anomaly Delta
-        </div>
-      </div>
-    );
-  }
-
-  const isCritical = activeAnomaly.severity === 'critical';
-  const isRemediated = activeAnomaly.status === 'remediated';
-
-  const handleFix = () => {
-    setIsApplyingFix(true);
-    setTimeout(() => {
-      onRemediate(activeAnomaly.id);
-      setIsApplyingFix(false);
-      try {
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.7 }
-        });
-      } catch (e) {}
-    }, 1200);
-  };
+  const activeCritical = anomalies.find(a => a.severity === 'critical' && a.status === 'active');
+  const otherAnomalies = anomalies.filter(a => a.id !== activeCritical?.id);
 
   return (
-    <div className={`bg-[#11141C] rounded-xl p-6 relative overflow-hidden transition-all ${
-      isRemediated
-        ? 'border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.08)]'
-        : isCritical
-          ? 'border-2 border-red-500/30 shadow-[0_0_25px_rgba(239,68,68,0.1)]'
-          : 'border border-slate-800'
-    }`}>
-      {/* Background Watermark Icon */}
-      <div className="absolute top-0 right-0 p-3 pointer-events-none">
-        <svg className={`w-12 h-12 opacity-15 ${isRemediated ? 'text-emerald-500' : 'text-red-500'}`} fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-        </svg>
-      </div>
-
-      {/* Top Bar: Anomaly Header & Selector */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
-        <div>
-          <h3 className={`font-bold uppercase tracking-wider text-xs flex items-center gap-2 ${
-            isRemediated ? 'text-emerald-400' : 'text-red-400'
-          }`}>
-            <span className={`w-2 h-2 rounded-full ${isRemediated ? 'bg-emerald-500' : 'bg-red-500'}`} />
-            <span>{isRemediated ? 'ANOMALY REMEDIATED' : 'ANOMALY DETECTED'}</span>
-            <span className="text-[11px] text-slate-500 font-mono font-normal">
-              • {activeAnomaly.gtaLocation}
-            </span>
-          </h3>
-          <p className="text-slate-200 text-lg font-semibold leading-snug mt-1">
-            {activeAnomaly.title}
-          </p>
-        </div>
-
-        {/* Anomaly Tabs */}
-        {anomalies.length > 1 && (
-          <div className="flex items-center gap-1.5 bg-[#0B0F17] p-1 rounded-lg border border-slate-800 text-xs font-mono">
-            {anomalies.map((anom, idx) => (
-              <button
-                key={anom.id}
-                onClick={() => setSelectedAnomalyId(anom.id)}
-                className={`px-2.5 py-1 rounded transition-all flex items-center gap-1.5 ${
-                  selectedAnomalyId === anom.id
-                    ? anom.status === 'remediated'
-                      ? 'bg-emerald-500/20 text-emerald-300 font-semibold'
-                      : 'bg-red-500/20 text-red-300 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <span>Alert #{idx + 1}</span>
-                {anom.status === 'remediated' ? (
-                  <Check className="w-3 h-3 text-emerald-400" />
-                ) : (
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                )}
-              </button>
-            ))}
+    <div className="bg-[#292827] border border-[#a80000]/60 rounded-lg p-6 shadow-xl flex flex-col justify-between h-full space-y-5 text-[#f3f2f1]">
+      {/* Alert Header */}
+      <div className="flex items-center justify-between border-b border-[#3b3a39] pb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded bg-[#a80000]/25 text-[#ff6b6b] border border-[#a80000]/50 shadow-xs">
+            <Flame className="w-5 h-5 animate-pulse" />
           </div>
-        )}
-      </div>
-
-      {/* Main Grid: Description & Impact */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
-        <div className="lg:col-span-8 space-y-3">
-          <p className="text-slate-400 text-sm leading-relaxed">
-            {activeAnomaly.rootCause}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-mono text-slate-400">
-            <span className="px-2.5 py-1 rounded bg-[#0B0F17] border border-slate-800 text-cyan-400">
-              Scope: {activeAnomaly.equipmentScope}
-            </span>
-            <span className="px-2.5 py-1 rounded bg-[#0B0F17] border border-slate-800 text-slate-300">
-              Service: {activeAnomaly.affectedService}
-            </span>
-            <span className="text-slate-500">
-              Detected: {activeAnomaly.detectedAt}
-            </span>
-          </div>
-
           <div>
-            <button
-              onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
-              className="text-[11px] text-cyan-400 hover:underline font-mono pt-1 inline-block cursor-pointer"
-            >
-              {showTechnicalDetails ? '▼ Hide Technical Diagnostic Dump' : '▶ Show Technical Diagnostic Dump'}
-            </button>
-
-            {showTechnicalDetails && (
-              <div className="mt-2 p-3 rounded-lg bg-[#0B0F17] border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
-                <div className="text-slate-500">// Diagnostic Log Analysis</div>
-                <div>{activeAnomaly.technicalDetails}</div>
-                <div className="text-slate-400 pt-1">
-                  Target Patch: {activeAnomaly.recommendedAction}
-                </div>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-[#ff6b6b] tracking-tight">
+                Active Anomaly Detected
+              </h2>
+              <span className="bg-[#a80000] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                CRITICAL
+              </span>
+            </div>
+            <p className="text-xs text-[#a19f9d] mt-0.5">
+              Live Azure Cost Anomaly Engine Alert
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Right 4 Cols: Impact & Fix Action */}
-        <div className="lg:col-span-4 flex flex-col justify-between space-y-4">
-          <div className="p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">
-              Estimated Financial Impact
+      {activeCritical ? (
+        <div className="space-y-4">
+          {/* Main Anomaly Summary Box */}
+          <div className="bg-[#252423] border border-[#3b3a39] rounded-lg p-4 space-y-3 shadow-xs">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-xs font-semibold text-[#f3f2f1]">
+                {activeCritical.title}
+              </span>
+              <span className="text-[10px] font-mono text-[#ff6b6b] bg-[#a80000]/20 border border-[#a80000]/40 px-2 py-0.5 rounded font-medium">
+                {activeCritical.gtaLocation}
+              </span>
+            </div>
+
+            <p className="text-xs text-[#a19f9d] leading-relaxed">
+              {activeCritical.rootCause}
             </p>
-            <p className={`text-2xl font-bold mt-1 font-mono ${
-              isRemediated ? 'text-emerald-400 line-through' : 'text-red-500'
-            }`}>
-              ${activeAnomaly.estimatedCostImpactCad.toFixed(2)}{' '}
-              <span className="text-xs font-normal text-slate-400">CAD / day</span>
-            </p>
-            <p className="text-[11px] text-slate-400 mt-1 font-mono">
-              30-Day Potential Drain: <strong className="text-slate-200">${(activeAnomaly.estimatedCostImpactCad * 30).toFixed(0)} CAD</strong>
-            </p>
+
+            {/* Impact Metric Highlight */}
+            <div className="bg-[#a80000]/15 border border-[#a80000]/40 rounded p-3 flex items-center justify-between font-mono">
+              <div>
+                <span className="text-[10px] text-[#ff8080] uppercase block font-semibold">Estimated Cost Runaway</span>
+                <span className="text-lg font-bold text-[#ff6b6b]">
+                  +${activeCritical.estimatedCostImpactCad.toFixed(2)} <span className="text-xs text-[#a19f9d] font-normal">CAD / day</span>
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-[#a19f9d] block">Affected Fleet Scope</span>
+                <span className="text-xs font-semibold text-[#f3f2f1]">
+                  {activeCritical.equipmentScope}
+                </span>
+              </div>
+            </div>
+
+            {/* Recommended Action */}
+            <div className="text-xs bg-[#1b1a19] border border-[#3b3a39] rounded p-2.5 space-y-1">
+              <div className="flex items-center gap-1.5 text-[#00ccff] font-semibold">
+                <Zap className="w-3.5 h-3.5" />
+                <span>Recommended One-Click Azure Twin Action:</span>
+              </div>
+              <p className="text-[11px] text-[#a19f9d]">
+                {activeCritical.recommendedAction}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            {isRemediated ? (
-              <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono text-center flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Device Twin Patched (15s Telemetry Rate)</span>
-              </div>
-            ) : (
-              <button
-                onClick={handleFix}
-                disabled={isApplyingFix}
-                className="w-full py-2.5 px-4 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-[#0B0F17] font-bold text-xs uppercase tracking-wide transition-all shadow-[0_0_12px_rgba(6,182,212,0.25)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {isApplyingFix ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-[#0B0F17]" />
-                    <span>Applying Cloud Twin Patch...</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 fill-[#0B0F17]" />
-                    <span>⚡ Auto-Remediate (15s Sampling)</span>
-                  </>
-                )}
-              </button>
-            )}
+          {/* Action Trigger Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2 pt-1">
+            <button
+              onClick={() => onRemediate(activeCritical.id)}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#a80000] hover:bg-[#8b0000] text-white font-semibold py-2 px-4 rounded text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+            >
+              <Zap className="w-4 h-4" />
+              <span>Throttle Telemetry (Save $145.20/d)</span>
+            </button>
 
             <button
-              onClick={() => onAcknowledge(activeAnomaly.id)}
-              className="w-full text-xs font-bold text-slate-500 hover:text-slate-300 uppercase tracking-tighter text-center py-1 transition-colors"
+              onClick={() => onAcknowledge(activeCritical.id)}
+              className="flex items-center justify-center gap-1 bg-[#323130] hover:bg-[#3b3a39] text-[#f3f2f1] border border-[#484644] font-semibold py-2 px-4 rounded text-xs transition-all cursor-pointer"
             >
-              {activeAnomaly.status === 'acknowledged' ? 'Acknowledged' : 'Dismiss Alert'}
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#a19f9d]" />
+              <span>Acknowledge</span>
             </button>
           </div>
+        </div>
+      ) : (
+        <div className="bg-[#252423] border border-[#107c10]/40 rounded-lg p-5 text-center space-y-2 shadow-xs">
+          <div className="w-10 h-10 bg-[#107c10]/20 text-[#107c10] rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-semibold text-[#f3f2f1]">
+            Telemetry Rate Nominal
+          </h3>
+          <p className="text-xs text-[#a19f9d] max-w-xs mx-auto">
+            All 85 GTA IoT Edge hubs are streaming at target 15s sampling cadence. No runaway spend detected.
+          </p>
+        </div>
+      )}
+
+      {/* Other Logged Events / History */}
+      <div className="border-t border-[#3b3a39] pt-3 space-y-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[#ff8080] block font-mono">
+          Recent Cloud Cost Events
+        </span>
+        <div className="space-y-1.5">
+          {otherAnomalies.slice(0, 2).map((item) => (
+            <div 
+              key={item.id}
+              className="bg-[#252423] border border-[#3b3a39] rounded p-2.5 flex items-center justify-between text-xs hover:border-[#605e5c] transition-colors"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${
+                  item.status === 'remediated' ? 'bg-[#107c10]' : 'bg-[#ffaa00]'
+                }`} />
+                <span className="text-[#f3f2f1] font-medium truncate">
+                  {item.title}
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-[#a19f9d] bg-[#1b1a19] border border-[#3b3a39] px-2 py-0.5 rounded capitalize">
+                {item.status}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

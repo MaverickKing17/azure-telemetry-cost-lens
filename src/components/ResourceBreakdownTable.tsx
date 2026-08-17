@@ -1,17 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { 
   Search, 
-  ArrowUpDown, 
-  Eye, 
+  Filter, 
+  ExternalLink, 
   Layers, 
-  Sparkles
+  Database, 
+  Radio, 
+  Cpu, 
+  HardDrive, 
+  ArrowUpDown,
+  ChevronRight
 } from 'lucide-react';
 import { AzureCostItem } from '../types/cost-types';
 
 interface ResourceBreakdownTableProps {
   resources: AzureCostItem[];
   onSelectResource: (resource: AzureCostItem) => void;
-  selectedTagFilter?: string | null;
+  selectedTagFilter: string | null;
 }
 
 export const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
@@ -20,250 +25,302 @@ export const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
   selectedTagFilter,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [sortField, setSortField] = useState<keyof AzureCostItem>('costCadMtd');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('all');
+  const [sortField, setSortField] = useState<'costCadMtd' | 'monitoredUnitsCount' | 'resourceName'>('costCadMtd');
+  const [sortAsc, setSortAsc] = useState(false);
 
-  // Filter and sort items
-  const filteredResources = useMemo(() => {
-    return resources.filter(res => {
-      const matchesSearch = 
-        res.resourceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.hvacBusinessPurpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.azureServiceType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.equipmentTag.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.clientPortfolio.toLowerCase().includes(searchTerm.toLowerCase());
+  // Extract unique service types for filter tabs
+  const serviceTypes = ['all', ...Array.from(new Set(resources.map(r => r.azureMeterCategory)))];
 
-      const matchesCategory = 
-        selectedCategory === 'all' ||
-        (selectedCategory === 'iot' && res.azureMeterCategory.includes('Internet of Things')) ||
-        (selectedCategory === 'db' && (res.azureMeterCategory.includes('Databases') || res.azureMeterCategory.includes('Storage'))) ||
-        (selectedCategory === 'compute' && (res.azureMeterCategory.includes('App Service') || res.azureMeterCategory.includes('Virtual Machines') || res.azureMeterCategory.includes('Analytics'))) ||
-        (selectedCategory === 'network' && (res.azureMeterCategory.includes('Networking') || res.azureMeterCategory.includes('Integration')));
+  // Filtering
+  const filteredResources = resources.filter(res => {
+    const matchesSearch = 
+      res.resourceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.resourceGroup.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.equipmentTag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.gtaZone.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesTag = !selectedTagFilter || res.equipmentTag === selectedTagFilter;
+    const matchesService = selectedServiceType === 'all' || res.azureMeterCategory === selectedServiceType;
+    const matchesTag = !selectedTagFilter || res.equipmentTag === selectedTagFilter || res.equipmentCategory === selectedTagFilter;
 
-      return matchesSearch && matchesCategory && matchesTag;
-    }).sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
+    return matchesSearch && matchesService && matchesTag;
+  });
 
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      }
-      return 0;
-    });
-  }, [resources, searchTerm, selectedCategory, sortField, sortDirection, selectedTagFilter]);
+  // Sorting
+  const sortedResources = [...filteredResources].sort((a, b) => {
+    let comparison = 0;
+    if (sortField === 'costCadMtd') {
+      comparison = a.costCadMtd - b.costCadMtd;
+    } else if (sortField === 'monitoredUnitsCount') {
+      comparison = a.monitoredUnitsCount - b.monitoredUnitsCount;
+    } else if (sortField === 'resourceName') {
+      comparison = a.resourceName.localeCompare(b.resourceName);
+    }
+    return sortAsc ? comparison : -comparison;
+  });
 
-  const handleSort = (field: keyof AzureCostItem) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('desc');
+  const getServiceIcon = (category: string) => {
+    switch (category) {
+      case 'Internet of Things':
+        return <Radio className="w-4 h-4 text-[#00ccff]" />;
+      case 'Databases':
+        return <Database className="w-4 h-4 text-[#b180f0]" />;
+      case 'Analytics':
+        return <Cpu className="w-4 h-4 text-[#ffaa00]" />;
+      case 'Storage':
+        return <HardDrive className="w-4 h-4 text-[#107c10]" />;
+      default:
+        return <Layers className="w-4 h-4 text-[#a19f9d]" />;
     }
   };
 
-  const getHealthIndicator = (status: AzureCostItem['status']) => {
+  const getStatusBadge = (status: AzureCostItem['status']) => {
     switch (status) {
       case 'Optimal':
-        return <span className="w-2 h-2 bg-green-500 rounded-full inline-block" title="Optimal Health" />;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#107c10]/20 text-[#107c10] border border-[#107c10]/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#107c10]" />
+            Optimal
+          </span>
+        );
       case 'Spike Warning':
-        return <span className="w-2 h-2 bg-red-500 rounded-full inline-block animate-pulse" title="Spike Warning" />;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#a80000]/25 text-[#ff6b6b] border border-[#a80000]/50 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff5555]" />
+            Spike Warning
+          </span>
+        );
       case 'Over-provisioned':
-        return <span className="w-2 h-2 bg-amber-500 rounded-full inline-block" title="Over-provisioned RU" />;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#ffaa00]/20 text-[#ffaa00] border border-[#ffaa00]/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ffaa00]" />
+            Over-provisioned
+          </span>
+        );
       case 'Tiering Candidate':
-        return <span className="w-2 h-2 bg-cyan-400 rounded-full inline-block" title="Cool Tier Candidate" />;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#0078d4]/25 text-[#00ccff] border border-[#0078d4]/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00ccff]" />
+            Tiering Candidate
+          </span>
+        );
+    }
+  };
+
+  const handleSort = (field: 'costCadMtd' | 'monitoredUnitsCount' | 'resourceName') => {
+    if (sortField === field) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortField(field);
+      setSortAsc(false);
     }
   };
 
   return (
-    <div className="col-span-12 bg-[#11141C] border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
-      {/* Table Header Banner */}
-      <div className="px-6 py-4 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-800/20">
+    <div className="bg-[#292827] border border-[#3b3a39] rounded-lg p-6 shadow-xl space-y-5 w-full text-[#f3f2f1]">
+      {/* Table Header Controls */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-[#3b3a39] pb-5">
         <div>
-          <h3 className="text-slate-200 font-semibold text-base">
-            Service Breakdown & Utility
-          </h3>
-          <p className="text-xs text-slate-400">
-            Mapping technical Azure meters to HVAC operational purpose and cost per node.
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded bg-[#0078D4]/20 border border-[#0078D4]/40 text-[#00ccff]">
+              <Layers className="w-4 h-4" />
+            </div>
+            <h2 className="text-base font-semibold text-[#f3f2f1] tracking-tight">
+              Service Breakdown & Telemetry Utility Matrix
+            </h2>
+          </div>
+          <p className="text-xs text-[#a19f9d] mt-1">
+            Itemized breakdown of Azure resources serving Toronto/GTA telemetry gateways, stream jobs, and cold storage
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Filter & Search Bar */}
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           {/* Search Box */}
-          <div className="relative min-w-[200px]">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 text-[#a19f9d] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search Azure resource..."
+              placeholder="Search resource, tag, zone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#0B0F17] text-slate-200 text-xs pl-8 pr-3 py-1.5 rounded-lg border border-slate-800 focus:outline-none focus:border-cyan-500 placeholder-slate-500 font-mono transition-colors"
+              className="w-full bg-[#252423] border border-[#3b3a39] text-[#f3f2f1] placeholder:text-[#a19f9d] text-xs rounded pl-9 pr-3 py-1.5 focus:outline-none focus:border-[#00ccff] transition-colors"
             />
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1 bg-[#0B0F17] p-1 rounded-lg border border-slate-800 text-[11px] font-mono">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                selectedCategory === 'all' ? 'bg-cyan-500/15 text-cyan-400 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedCategory('iot')}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                selectedCategory === 'iot' ? 'bg-cyan-500/15 text-cyan-400 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              IoT Hub
-            </button>
-            <button
-              onClick={() => setSelectedCategory('db')}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                selectedCategory === 'db' ? 'bg-cyan-500/15 text-cyan-400 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              DB & Storage
-            </button>
+          {/* Service Category Pills */}
+          <div className="flex items-center gap-1 bg-[#252423] p-1 rounded border border-[#3b3a39] overflow-x-auto">
+            {serviceTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedServiceType(type)}
+                className={`px-3 py-1 text-xs font-semibold rounded transition-all capitalize whitespace-nowrap cursor-pointer ${
+                  selectedServiceType === type
+                    ? 'bg-[#0078D4] text-white shadow-xs'
+                    : 'text-[#a19f9d] hover:text-[#f3f2f1] hover:bg-[#323130]'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Selected Tag Filter Banner if Active */}
+      {/* Selected Tag Indicator */}
       {selectedTagFilter && (
-        <div className="flex items-center justify-between bg-cyan-500/10 border-b border-cyan-500/20 px-6 py-2 text-xs font-mono text-cyan-400">
-          <span>Filtering by Equipment: <strong>{selectedTagFilter}</strong></span>
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
-          >
-            Clear filter
-          </button>
+        <div className="bg-[#0078D4]/20 border border-[#0078D4]/40 text-[#c7e0f4] px-3 py-2 rounded text-xs flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Filter className="w-3.5 h-3.5 text-[#00ccff]" />
+            <span>Active Equipment Tag Filter: <strong className="text-[#f3f2f1]">{selectedTagFilter}</strong></span>
+          </span>
+          <span className="text-[11px] text-[#00ccff] font-mono">Showing matched resources</span>
         </div>
       )}
 
-      {/* Table Content */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+      {/* Data Table */}
+      <div className="overflow-x-auto rounded border border-[#3b3a39]">
+        <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="text-[10px] text-slate-500 uppercase tracking-widest border-b border-slate-800 bg-[#0B0F17]/50 font-mono">
-              <th className="px-6 py-3 font-semibold">
-                <button
-                  onClick={() => handleSort('resourceName')}
-                  className="flex items-center gap-1 hover:text-cyan-400 transition-colors uppercase tracking-widest"
-                >
-                  <span>Azure Service</span>
-                  <ArrowUpDown className="w-3 h-3" />
-                </button>
+            <tr className="bg-[#252423] border-b border-[#3b3a39] text-[#a19f9d] font-semibold text-[11px]">
+              <th 
+                className="py-3 px-4 cursor-pointer hover:text-[#00ccff] select-none"
+                onClick={() => handleSort('resourceName')}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Azure Resource / Tier</span>
+                  <ArrowUpDown className="w-3 h-3 text-[#a19f9d]" />
+                </div>
               </th>
-              <th className="px-6 py-3 font-semibold">
-                <button
-                  onClick={() => handleSort('hvacBusinessPurpose')}
-                  className="flex items-center gap-1 hover:text-cyan-400 transition-colors uppercase tracking-widest"
-                >
-                  <span>Business Purpose</span>
-                  <ArrowUpDown className="w-3 h-3" />
-                </button>
+              <th className="py-3 px-4">GTA Zone</th>
+              <th className="py-3 px-4">Equipment Tag</th>
+              <th 
+                className="py-3 px-4 text-center cursor-pointer hover:text-[#00ccff] select-none"
+                onClick={() => handleSort('monitoredUnitsCount')}
+              >
+                <div className="flex items-center justify-center gap-1.5">
+                  <span>Units</span>
+                  <ArrowUpDown className="w-3 h-3 text-[#a19f9d]" />
+                </div>
               </th>
-              <th className="px-6 py-3 font-semibold">Equipment Tag</th>
-              <th className="px-6 py-3 font-semibold text-right">
-                <button
-                  onClick={() => handleSort('costCadMtd')}
-                  className="flex items-center gap-1 ml-auto hover:text-cyan-400 transition-colors uppercase tracking-widest"
-                >
-                  <span>Current Cost (CAD)</span>
-                  <ArrowUpDown className="w-3 h-3" />
-                </button>
+              <th 
+                className="py-3 px-4 text-right cursor-pointer hover:text-[#00ccff] select-none"
+                onClick={() => handleSort('costCadMtd')}
+              >
+                <div className="flex items-center justify-end gap-1.5">
+                  <span>MTD Spend (CAD)</span>
+                  <ArrowUpDown className="w-3 h-3 text-[#a19f9d]" />
+                </div>
               </th>
-              <th className="px-6 py-3 font-semibold text-right">Cost / Unit</th>
-              <th className="px-6 py-3 font-semibold text-center">Health</th>
-              <th className="px-4 py-3 text-center">Inspect</th>
+              <th className="py-3 px-4 text-right">Projected Close</th>
+              <th className="py-3 px-4 text-center">Status</th>
+              <th className="py-3 px-4 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="text-sm">
-            {filteredResources.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-8 text-center text-slate-500 font-mono">
-                  No Azure resources match the selected criteria.
-                </td>
-              </tr>
-            ) : (
-              filteredResources.map((item) => (
+
+          <tbody className="divide-y divide-[#3b3a39] bg-[#292827]">
+            {sortedResources.length > 0 ? (
+              sortedResources.map((res) => (
                 <tr
-                  key={item.id}
-                  onClick={() => onSelectResource(item)}
-                  className="border-b border-slate-800 hover:bg-slate-800/15 transition-colors cursor-pointer"
+                  key={res.id}
+                  onClick={() => onSelectResource(res)}
+                  className="hover:bg-[#323130] transition-colors cursor-pointer group"
                 >
-                  {/* Azure Service */}
-                  <td className="px-6 py-4 text-cyan-400 font-mono font-semibold">
-                    <div>{item.resourceName}</div>
-                    <div className="text-[11px] text-slate-500 font-normal truncate max-w-[180px]">
-                      {item.azureServiceType}
+                  {/* Name & Tier */}
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded bg-[#252423] border border-[#3b3a39] shrink-0">
+                        {getServiceIcon(res.azureMeterCategory)}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-[#f3f2f1] group-hover:text-[#00ccff] transition-colors flex items-center gap-1.5">
+                          <span>{res.resourceName}</span>
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 text-[#00ccff] transition-opacity" />
+                        </div>
+                        <div className="text-[11px] text-[#a19f9d] font-mono">
+                          {res.azureServiceType}
+                        </div>
+                      </div>
                     </div>
                   </td>
 
-                  {/* Plain English HVAC Purpose */}
-                  <td className="px-6 py-4 text-slate-300">
-                    <div className="font-medium">{item.hvacBusinessPurpose}</div>
-                    <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                      {item.clientPortfolio}
+                  {/* GTA Zone */}
+                  <td className="py-3.5 px-4 font-mono text-[#f3f2f1]">
+                    {res.gtaZone}
+                  </td>
+
+                  {/* HVAC Tag */}
+                  <td className="py-3.5 px-4">
+                    <span className="bg-[#252423] text-[#f3f2f1] border border-[#3b3a39] px-2 py-0.5 rounded text-[11px] font-mono">
+                      {res.equipmentCategory}
+                    </span>
+                  </td>
+
+                  {/* Monitored Units */}
+                  <td className="py-3.5 px-4 font-mono text-[#f3f2f1] text-center">
+                    <div className="text-[#f3f2f1] font-semibold">{res.monitoredUnitsCount} units</div>
+                    <div className="text-[10px] text-[#a19f9d]">
+                      ${res.costPerUnitCad.toFixed(2)}/unit
                     </div>
                   </td>
 
-                  {/* Equipment Tag */}
-                  <td className="px-6 py-4 font-mono text-xs text-slate-400">
-                    <span className="text-slate-200 font-medium">{item.equipmentTag}</span>
-                    <div className="text-[10px] text-slate-500">📍 {item.gtaZone} • {item.monitoredUnitsCount} units</div>
+                  {/* Spend MTD */}
+                  <td className="py-3.5 px-4 text-right font-mono">
+                    <div className="font-bold text-[#00ccff] text-sm">
+                      ${res.costCadMtd.toLocaleString('en-CA', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[10px] text-[#a19f9d]">
+                      Prev: ${res.costCadLastMonth.toFixed(2)}
+                    </div>
                   </td>
 
-                  {/* Current Cost */}
-                  <td className="px-6 py-4 text-right font-semibold text-white font-mono">
-                    ${item.costCadMtd.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {/* Projected Close */}
+                  <td className="py-3.5 px-4 text-right font-mono">
+                    <div className={`font-semibold text-xs ${
+                      res.costCadProjected > res.costCadMtd * 1.3 ? 'text-[#ff6b6b]' : 'text-[#f3f2f1]'
+                    }`}>
+                      ${res.costCadProjected.toLocaleString('en-CA', { minimumFractionDigits: 2 })}
+                    </div>
                   </td>
 
-                  {/* Cost per unit */}
-                  <td className="px-6 py-4 text-right font-mono text-xs text-cyan-400 font-semibold">
-                    ${item.costPerUnitCad.toFixed(2)}
+                  {/* Status Indicator */}
+                  <td className="py-3.5 px-4 text-center">
+                    {getStatusBadge(res.status)}
                   </td>
 
-                  {/* Health Indicator */}
-                  <td className="px-6 py-4 text-center">
-                    {getHealthIndicator(item.status)}
-                  </td>
-
-                  {/* Action */}
-                  <td className="px-4 py-4 text-center">
-                    <button
+                  {/* Action Link */}
+                  <td className="py-3.5 px-4 text-right">
+                    <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        onSelectResource(item);
+                        onSelectResource(res);
                       }}
-                      className="p-1.5 rounded bg-slate-800/80 hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-400 transition-colors"
-                      title="Inspect Azure JSON"
+                      className="text-[#00ccff] hover:text-white font-semibold text-xs p-1 rounded hover:bg-[#0078D4]/30 transition-colors inline-flex items-center gap-1 cursor-pointer"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <span>Inspect</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </td>
                 </tr>
               ))
+            ) : (
+              <tr>
+                <td colSpan={8} className="py-8 text-center text-[#a19f9d]">
+                  No Azure HVAC resources found matching your current filter criteria.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Footer info */}
-      <div className="px-6 py-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono bg-[#0B0F17]/30">
-        <span>Showing {filteredResources.length} active Azure cloud resources</span>
-        <span className="text-cyan-400 font-semibold">
-          Total Current Cost: ${filteredResources.reduce((s, r) => s + r.costCadMtd, 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD
-        </span>
+      {/* Table Footer Stats */}
+      <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-[#a19f9d] font-mono pt-2 border-t border-[#3b3a39] gap-2">
+        <span>Showing {sortedResources.length} of {resources.length} active Azure cloud services</span>
+        <div className="flex items-center gap-4">
+          <span>Subtotal MTD: <strong className="text-[#f3f2f1]">${sortedResources.reduce((a, b) => a + b.costCadMtd, 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD</strong></span>
+          <span className="text-[#107c10] font-semibold">Total Savings Potential: ${sortedResources.reduce((a, b) => a + b.savingsPotentialCad, 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD</span>
+        </div>
       </div>
     </div>
   );

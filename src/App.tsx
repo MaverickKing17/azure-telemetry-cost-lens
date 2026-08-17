@@ -18,6 +18,7 @@ import { ThresholdAlertsView } from './components/ThresholdAlertsView';
 import { OptimizationSimulator } from './components/OptimizationSimulator';
 import { ExportReportsView } from './components/ExportReportsView';
 import { ResourceDetailModal } from './components/ResourceDetailModal';
+import { GtaHvacFooter } from './components/GtaHvacFooter';
 import { Sparkles } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -129,19 +130,19 @@ export default function DashboardPage() {
 
   return (
     <>
-      <style>{`body, html, #root { background-color: #0B0F17 !important; margin: 0; padding: 0; width: 100vw; height: 100vh; overflow-x: hidden; }`}</style>
+      <style>{`body, html, #root { background-color: #1b1a19 !important; color: #f3f2f1 !important; margin: 0; padding: 0; width: 100vw; height: 100vh; overflow-x: hidden; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }`}</style>
       
-      <div className="flex min-h-[100dvh] min-w-[100vw] bg-[#0B0F17] text-white m-0 p-0 font-sans selection:bg-cyan-500 selection:text-[#0B0F17]">
+      <div className="flex min-h-[100dvh] min-w-[100vw] bg-[#1b1a19] text-[#f3f2f1] m-0 p-0 font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif] selection:bg-[#0078D4] selection:text-white">
         {/* Toast Notification Ticker */}
         {toastMessage && (
-          <div className="fixed top-4 right-4 z-50 bg-[#11141C] border border-cyan-500/40 text-cyan-400 px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2.5 text-xs font-mono">
-            <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+          <div className="fixed top-4 right-4 z-50 bg-[#252423] border border-[#0078d4] text-[#c7e0f4] px-4 py-2.5 rounded shadow-2xl flex items-center gap-2.5 text-xs font-mono">
+            <Sparkles className="w-4 h-4 text-[#00ccff] shrink-0" />
             <span>{toastMessage}</span>
           </div>
         )}
 
-        {/* The Sidebar */}
-        <div className="w-64 flex-shrink-0 h-screen bg-[#0B0F17] border-r border-white/10 flex flex-col">
+        {/* The Sidebar (Microsoft Azure Dark Slate) */}
+        <div className="w-64 flex-shrink-0 h-screen bg-[#252423] border-r border-[#3b3a39] flex flex-col">
           <Sidebar
             activeTab={activeTab}
             onSelectTab={setActiveTab}
@@ -150,8 +151,8 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* The Main Dashboard Area */}
-        <div className="flex-1 h-screen bg-[#0B0F17] p-8 overflow-y-auto flex flex-col space-y-6">
+        {/* The Main Dashboard Area (Official Azure Dark Slate) */}
+        <div className="flex-1 h-screen bg-[#1b1a19] p-8 overflow-y-auto flex flex-col space-y-6">
           {/* Top Command Header */}
           <CommandHeader
             totalSpentCad={totalSpentCad}
@@ -170,7 +171,7 @@ export default function DashboardPage() {
           />
 
           {/* Viewport Content */}
-          <div className="w-full space-y-6">
+          <div className="w-full space-y-6 flex-1">
             {activeTab === 'dashboard' && (
               <div className="w-full space-y-6">
                 {/* Top Dashboard Grid */}
@@ -241,6 +242,9 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+
+          {/* Custom Comprehensive GTA HVAC Footer (Dark Mode) */}
+          <GtaHvacFooter />
         </div>
 
         {/* Resource Detail Modal */}

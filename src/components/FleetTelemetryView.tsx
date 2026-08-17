@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
+  Activity, 
+  Radio, 
+  Server, 
   Cpu, 
-  Wifi, 
-  TrendingUp, 
+  RefreshCw, 
+  Layers, 
   Sliders, 
-  ArrowUpRight
+  CheckCircle2, 
+  AlertCircle,
+  Thermometer,
+  Wind,
+  Gauge
 } from 'lucide-react';
 import { EquipmentCostSummary } from '../types/cost-types';
 
@@ -12,217 +19,162 @@ interface FleetTelemetryViewProps {
   equipmentData: EquipmentCostSummary[];
 }
 
-export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({
-  equipmentData,
-}) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>(equipmentData[0]?.category || '');
-
-  const activeEquipment = equipmentData.find(e => e.category === selectedCategory) || equipmentData[0];
+export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmentData }) => {
+  const sampleTelemetryStreams = [
+    {
+      id: 'node-rtu-042',
+      name: 'Vaughan Logistics Park - RTU #04',
+      type: 'Carrier WeatherMaster 25-Ton',
+      zone: 'York Region (Vaughan)',
+      pingRate: '15s (Nominal)',
+      lastPayload: 'Supply: 14.2°C, Return: 22.8°C, Static: 1.25 in.wg, Comp: 84%',
+      status: 'nominal',
+      dailyCostCad: 0.14,
+    },
+    {
+      id: 'node-rtu-019',
+      name: 'Mississauga Data Corridor - RTU #12',
+      type: 'Trane IntelliPak 40-Ton',
+      zone: 'Peel Region (Mississauga)',
+      pingRate: '15s (Nominal)',
+      lastPayload: 'Supply: 13.8°C, Return: 23.1°C, Static: 1.40 in.wg, Comp: 92%',
+      status: 'nominal',
+      dailyCostCad: 0.14,
+    },
+    {
+      id: 'node-chiller-002',
+      name: 'Downtown Financial Tower - Centrifugal Chiller B',
+      type: 'York YK Centrifugal 500-Ton',
+      zone: 'Downtown Core / Bay St.',
+      pingRate: '30s (Optimized)',
+      lastPayload: 'Chilled Water Out: 6.1°C, Condenser In: 29.4°C, kW/Ton: 0.58',
+      status: 'nominal',
+      dailyCostCad: 0.08,
+    },
+    {
+      id: 'node-boiler-007',
+      name: 'North York General Hospital - Boiler Bank #2',
+      type: 'Cleaver-Brooks Hydronic 4000MBH',
+      zone: 'North York / Don Mills',
+      pingRate: '60s (Energy Saver)',
+      lastPayload: 'Supply Water: 78.5°C, Stack Temp: 112°C, O2: 3.4%, Firing: 62%',
+      status: 'nominal',
+      dailyCostCad: 0.04,
+    },
+    {
+      id: 'node-rtu-088',
+      name: 'Etobicoke Cold Storage - Freezer RTU #01',
+      type: 'Engineered Air Multi-Zone 35-Ton',
+      zone: 'Etobicoke / Lakeshore',
+      pingRate: '15s (Nominal)',
+      lastPayload: 'Evap Temp: -18.2°C, Defrost: Idle, Subcooling: 7.2K',
+      status: 'nominal',
+      dailyCostCad: 0.14,
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Overview Banner */}
-      <div className="bg-[#11141C] border border-slate-800 rounded-xl p-6 shadow-2xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 w-full text-[#f3f2f1]">
+      {/* Overview Card */}
+      <div className="bg-[#292827] border border-[#3b3a39] rounded-lg p-6 shadow-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#3b3a39] pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono">
-                Fleet Telemetry & Cellular Data Profiles
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono border border-slate-700">
-                MQTT / BACnet IP / Modbus RTU
-              </span>
+              <div className="p-1.5 rounded bg-[#0078D4]/20 border border-[#0078D4]/40 text-[#00ccff]">
+                <Activity className="w-4 h-4" />
+              </div>
+              <h2 className="text-base font-semibold text-[#f3f2f1] tracking-tight">
+                Live HVAC Telemetry Streams & IoT Device Twins
+              </h2>
             </div>
-            <h2 className="text-lg font-bold text-white tracking-tight mt-1">
-              Field Telematics Economics & Azure Ingestion
-            </h2>
-            <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-              Breakdown of cellular edge gateway SIM data consumption (Bell & Rogers M2M) combined with Azure IoT Hub and Cosmos DB processing.
+            <p className="text-xs text-[#a19f9d] mt-1">
+              Active BACnet/IP to Azure IoT Hub bridge gateways streaming temperature, static pressure, and compressor diagnostics
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[#0B0F17] border border-slate-800 text-right font-mono">
-              <div className="text-[10px] text-slate-500 uppercase">Total Pings MTD:</div>
-              <div className="text-lg font-bold text-cyan-400">2.14 Billion</div>
-            </div>
-            <div className="p-3 rounded-lg bg-[#0B0F17] border border-slate-800 text-right font-mono">
-              <div className="text-[10px] text-slate-500 uppercase">Data Bandwidth:</div>
-              <div className="text-lg font-bold text-emerald-400">4.82 TB</div>
-            </div>
+          <div className="flex items-center gap-2 text-xs font-mono bg-[#107c10]/20 text-[#107c10] border border-[#107c10]/40 px-3 py-1.5 rounded">
+            <span className="w-2 h-2 rounded-full bg-[#107c10] animate-pulse" />
+            <span>85 Gateways Synced | 0 Packet Drops</span>
+          </div>
+        </div>
+
+        {/* Telemetry Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <div className="bg-[#252423] border border-[#3b3a39] rounded p-4">
+            <span className="text-[11px] font-semibold text-[#a19f9d] uppercase">Avg Messages / Min</span>
+            <div className="text-2xl font-bold text-[#f3f2f1] font-mono mt-1">1,420 msgs</div>
+            <span className="text-[11px] text-[#a19f9d]">Into Canada Central S1 Hub</span>
+          </div>
+
+          <div className="bg-[#252423] border border-[#3b3a39] rounded p-4">
+            <span className="text-[11px] font-semibold text-[#a19f9d] uppercase">Active Telemetry Tags</span>
+            <div className="text-2xl font-bold text-[#f3f2f1] font-mono mt-1">3,480 points</div>
+            <span className="text-[11px] text-[#a19f9d]">Temperatures, VFD Hz, kW</span>
+          </div>
+
+          <div className="bg-[#252423] border border-[#3b3a39] rounded p-4">
+            <span className="text-[11px] font-semibold text-[#a19f9d] uppercase">Stream Analytics Rate</span>
+            <div className="text-2xl font-bold text-[#107c10] font-mono mt-1">3.0 Streaming Units</div>
+            <span className="text-[11px] text-[#a19f9d]">Auto-scaling enabled</span>
+          </div>
+
+          <div className="bg-[#252423] border border-[#3b3a39] rounded p-4">
+            <span className="text-[11px] font-semibold text-[#a19f9d] uppercase">Daily Ingestion Cost</span>
+            <div className="text-2xl font-bold text-[#00ccff] font-mono mt-1">$142.80 CAD/day</div>
+            <span className="text-[11px] text-[#a19f9d]">Normalized across fleet</span>
           </div>
         </div>
       </div>
 
-      {/* Equipment Selector Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {equipmentData.map((item) => {
-          const isSelected = selectedCategory === item.category;
-          return (
-            <button
-              key={item.category}
-              onClick={() => setSelectedCategory(item.category)}
-              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                isSelected
-                  ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-400'
-                  : 'bg-[#11141C] border-slate-800 hover:border-slate-700 text-slate-300 hover:bg-slate-800/30'
-              }`}
-            >
-              <div className="text-xs font-bold text-white truncate">
-                {item.category}
-              </div>
-              <div className="text-[11px] text-cyan-400 font-mono mt-1">
-                {item.unitCount} Units
-              </div>
-              <div className="text-xs font-mono font-bold text-slate-200 mt-2">
-                ${item.totalCostCad.toFixed(0)} CAD
-              </div>
-              <div className="text-[10px] text-slate-500 font-mono">
-                ${item.costPerUnitCad.toFixed(2)}/unit
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {/* Stream Inspect Table */}
+      <div className="bg-[#292827] border border-[#3b3a39] rounded-lg p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-[#f3f2f1]">
+            Real-Time Sample Ingestion Log (Live Feed)
+          </h3>
+          <span className="text-xs font-mono text-[#a19f9d]">
+            Auto-refreshing every 5 seconds
+          </span>
+        </div>
 
-      {/* Selected Equipment Deep Dive */}
-      {activeEquipment && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 8 Cols: Telemetry Config & Bandwidth Profile */}
-          <div className="lg:col-span-8 bg-[#11141C] border border-slate-800 rounded-xl p-6 space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div>
-                <h3 className="text-base font-bold text-white">
-                  {activeEquipment.category} Telemetry Profile
-                </h3>
-                <div className="text-xs text-slate-400 font-mono mt-0.5">
-                  Business Tag: <span className="text-cyan-400">{activeEquipment.equipmentTag}</span>
-                </div>
-              </div>
-              <div className="text-xs font-mono text-cyan-400 bg-[#0B0F17] px-3 py-1.5 rounded-lg border border-slate-800">
-                Sampling Rate: 1 ping / {activeEquipment.avgPingRateSec}s
-              </div>
-            </div>
-
-            {/* Metrics Breakdown Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-                <div className="text-xs text-slate-400 font-mono flex items-center gap-1">
-                  <Wifi className="w-3.5 h-3.5 text-cyan-400" />
-                  Monthly Data Ingestion
-                </div>
-                <div className="text-xl font-bold text-white font-mono mt-1">
-                  {activeEquipment.monthlyTelemetryGb} GB
-                </div>
-                <div className="text-[11px] text-slate-500 font-mono mt-1">
-                  ~{((activeEquipment.monthlyTelemetryGb / activeEquipment.unitCount) * 1024).toFixed(0)} MB / unit
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-                <div className="text-xs text-slate-400 font-mono flex items-center gap-1">
-                  <Cpu className="w-3.5 h-3.5 text-emerald-400" />
-                  Primary Azure Meter
-                </div>
-                <div className="text-sm font-bold text-emerald-400 font-mono mt-1 truncate">
-                  {activeEquipment.primaryAzureService}
-                </div>
-                <div className="text-[11px] text-slate-500 font-mono mt-1">
-                  Provisioned S2 + Hot Lake
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-                <div className="text-xs text-slate-400 font-mono flex items-center gap-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
-                  30-Day Cost Trend
-                </div>
-                <div className="text-xl font-bold text-white font-mono mt-1">
-                  {activeEquipment.deltaPercentVsLastMonth > 0 ? `+${activeEquipment.deltaPercentVsLastMonth}%` : `${activeEquipment.deltaPercentVsLastMonth}%`}
-                </div>
-                <div className="text-[11px] text-slate-500 font-mono mt-1">
-                  vs previous billing period
-                </div>
-              </div>
-            </div>
-
-            {/* Diagnostic Mode Simulation Info */}
-            <div className="p-4 rounded-xl bg-[#0B0F17] border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between text-xs font-mono font-semibold text-slate-200">
-                <span className="flex items-center gap-1.5">
-                  <Sliders className="w-4 h-4 text-cyan-400" />
-                  Sampling Frequencies & Financial Impact:
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
-                <div className="p-3 rounded-lg bg-[#11141C] border border-slate-800">
-                  <div className="text-slate-400">Standard Eco Mode (30s):</div>
-                  <div className="text-emerald-400 font-bold mt-1">$2.80 CAD / unit / mo</div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">Basic On/Off & Setpoint Log</div>
-                </div>
-                <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
-                  <div className="text-cyan-400 font-semibold">Active Mode (15s):</div>
-                  <div className="text-cyan-300 font-bold mt-1">${activeEquipment.costPerUnitCad.toFixed(2)} CAD / unit / mo</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">High Head & Subcooling Alarms</div>
-                </div>
-                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                  <div className="text-amber-400 font-semibold">Burst Diagnostic (100ms):</div>
-                  <div className="text-amber-300 font-bold mt-1">$18.50 CAD / unit / mo</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">Vibration FFT Spectrum Mode</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right 4 Cols: Service Territory & Pass-Through Accounting */}
-          <div className="lg:col-span-4 bg-[#11141C] border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-6">
-            <div>
-              <h3 className="text-base font-bold text-white">
-                Client SLA Pass-Through
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Cost allocation for monthly mechanical maintenance contract invoicing.
-              </p>
-
-              <div className="mt-4 space-y-2.5 font-mono text-xs">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F17] border border-slate-800">
-                  <span className="text-slate-400">Contract Billed Rate:</span>
-                  <span className="text-emerald-400 font-bold">$6.00 CAD / unit</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F17] border border-slate-800">
-                  <span className="text-slate-400">Actual Azure Cost:</span>
-                  <span className="text-white font-bold">${activeEquipment.costPerUnitCad.toFixed(2)} CAD / unit</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F17] border border-slate-800">
-                  <span className="text-slate-400">Telemetry Margin:</span>
-                  <span className="text-cyan-400 font-bold">
-                    +${(6.00 - activeEquipment.costPerUnitCad).toFixed(2)} CAD / unit
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <div className="text-xs text-slate-400 font-mono mb-2">Deployed Service Hubs:</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {activeEquipment.gtaLocations.map((loc) => (
-                    <span key={loc} className="text-[11px] px-2.5 py-1 rounded bg-[#0B0F17] text-slate-300 border border-slate-800 font-mono">
-                      📍 {loc}
+        <div className="overflow-x-auto rounded border border-[#3b3a39]">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="bg-[#252423] border-b border-[#3b3a39] text-[#a19f9d] font-semibold text-[11px]">
+                <th className="py-3 px-4">Device Node ID / Site</th>
+                <th className="py-3 px-4">Equipment Model</th>
+                <th className="py-3 px-4">GTA Zone</th>
+                <th className="py-3 px-4">Sampling Cadence</th>
+                <th className="py-3 px-4">Latest Decoded Telemetry Payload</th>
+                <th className="py-3 px-4 text-right">Daily Cost</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#3b3a39] bg-[#292827] font-mono">
+              {sampleTelemetryStreams.map((stream) => (
+                <tr key={stream.id} className="hover:bg-[#323130] transition-colors">
+                  <td className="py-3 px-4">
+                    <div className="font-semibold text-[#f3f2f1]">{stream.id}</div>
+                    <div className="text-[11px] text-[#a19f9d] font-sans">{stream.name}</div>
+                  </td>
+                  <td className="py-3 px-4 text-[#f3f2f1] font-sans">{stream.type}</td>
+                  <td className="py-3 px-4 text-[#a19f9d] font-sans">{stream.zone}</td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-0.5 rounded bg-[#0078D4]/25 text-[#00ccff] border border-[#0078D4]/40 text-[11px]">
+                      {stream.pingRate}
                     </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => alert(`Generated Telemetry Pass-Through Ledger for ${activeEquipment.category}.`)}
-              className="w-full py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-[#0B0F17] font-bold text-xs font-mono transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.25)]"
-            >
-              <span>Export {activeEquipment.category} Ledger</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+                  </td>
+                  <td className="py-3 px-4 text-[#a19f9d] text-[11px]">
+                    {stream.lastPayload}
+                  </td>
+                  <td className="py-3 px-4 text-right font-bold text-[#00ccff]">
+                    ${stream.dailyCostCad.toFixed(2)} CAD
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
     </div>
   );
 };

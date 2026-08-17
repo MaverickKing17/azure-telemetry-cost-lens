@@ -1,292 +1,199 @@
 import React, { useState } from 'react';
 import { 
-  Zap, 
+  SlidersHorizontal, 
   Sparkles, 
-  Sliders, 
-  CheckCircle2, 
-  TrendingDown,
-  RefreshCw
+  DollarSign, 
+  TrendingDown, 
+  CheckCircle, 
+  Layers, 
+  Zap,
+  RotateCcw,
+  CheckCircle2
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 export const OptimizationSimulator: React.FC = () => {
-  const [pingInterval, setPingInterval] = useState<number>(15);
-  const [storageRetentionDays, setStorageRetentionDays] = useState<number>(30);
-  const [nightAutoScaling, setNightAutoScaling] = useState<boolean>(true);
-  const [applyReservedInstances, setApplyReservedInstances] = useState<boolean>(true);
-  const [isApplying, setIsApplying] = useState<boolean>(false);
-  const [appliedSuccessfully, setAppliedSuccessfully] = useState<boolean>(false);
+  const [rtuSamplingRate, setRtuSamplingRate] = useState<number>(15);
+  const [cosmosTtlDays, setCosmosTtlDays] = useState<number>(90);
+  const [enableStorageTiering, setEnableStorageTiering] = useState<boolean>(true);
+  const [streamAnalyticsUnits, setStreamAnalyticsUnits] = useState<number>(3);
+  const [appliedFeedback, setAppliedFeedback] = useState<boolean>(false);
 
-  let pingSavings = 0;
-  if (pingInterval === 5) pingSavings = -1850;
-  else if (pingInterval === 15) pingSavings = 0;
-  else if (pingInterval === 30) pingSavings = 1180;
-  else if (pingInterval === 60) pingSavings = 2340;
+  // Baseline monthly costs CAD
+  const baseRtuCost = (60 / rtuSamplingRate) * 750;
+  const baseCosmosCost = (cosmosTtlDays / 30) * 1200;
+  const baseStorageCost = enableStorageTiering ? 480 : 920;
+  const baseStreamCost = streamAnalyticsUnits * 420;
 
-  let storageSavings = storageRetentionDays === 30 ? 380 : storageRetentionDays === 60 ? 190 : 0;
-  let cosmosSavings = nightAutoScaling ? 420 : 0;
-  let riSavings = applyReservedInstances ? 390 : 0;
+  const totalSimulatedCostCad = baseRtuCost + baseCosmosCost + baseStorageCost + baseStreamCost;
+  const baselineReferenceCostCad = 6800.00;
+  const monthlySavingsCad = Math.max(0, baselineReferenceCostCad - totalSimulatedCostCad);
+  const annualSavingsCad = monthlySavingsCad * 12;
 
-  const totalMonthlySavingsCad = Math.max(0, pingSavings + storageSavings + cosmosSavings + riSavings);
-  const annualizedSavingsCad = totalMonthlySavingsCad * 12;
+  const handleReset = () => {
+    setRtuSamplingRate(15);
+    setCosmosTtlDays(90);
+    setEnableStorageTiering(true);
+    setStreamAnalyticsUnits(3);
+    setAppliedFeedback(false);
+  };
 
   const handleApply = () => {
-    setIsApplying(true);
+    setAppliedFeedback(true);
     setTimeout(() => {
-      setIsApplying(false);
-      setAppliedSuccessfully(true);
-      try {
-        confetti({
-          particleCount: 75,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch (e) {}
-    }, 1200);
+      setAppliedFeedback(false);
+    }, 4000);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-[#11141C] border border-slate-800 rounded-xl p-6 shadow-2xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 w-full text-[#f3f2f1]">
+      {/* Header */}
+      <div className="bg-[#292827] border border-[#3b3a39] rounded-lg p-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3b3a39] pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" />
-                What-If Telemetry Cost Optimizer
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono border border-slate-700">
-                Live Simulator
-              </span>
+              <div className="p-1.5 rounded bg-[#0078D4]/20 border border-[#0078D4]/40 text-[#00ccff]">
+                <SlidersHorizontal className="w-4 h-4" />
+              </div>
+              <h2 className="text-base font-semibold text-[#f3f2f1] tracking-tight">
+                Azure HVAC Telemetry Cost Optimization Simulator
+              </h2>
             </div>
-            <h2 className="text-lg font-bold text-white tracking-tight mt-1">
-              Simulate Azure Cost Reductions for GTA Equipment Fleets
-            </h2>
-            <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-              Adjust edge sensor sampling intervals, cloud storage tiering automation, and off-peak database capacity to calculate instant CAD budget savings.
+            <p className="text-xs text-[#a19f9d] mt-1">
+              Simulate trade-offs between telemetry sampling rates, Cosmos DB hot/warm retention, and Azure Storage lifecycle tiers
             </p>
           </div>
 
-          {/* Quick Projected Savings Badge */}
-          <div className="p-4 rounded-xl bg-[#0B0F17] border border-slate-800 text-right font-mono">
-            <div className="text-xs text-slate-400 flex items-center justify-end gap-1 font-sans font-medium">
-              <TrendingDown className="w-4 h-4 text-emerald-400" />
-              Annualized Savings
-            </div>
-            <div className="text-2xl font-bold text-emerald-400 mt-0.5">
-              ${annualizedSavingsCad.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD
-            </div>
-            <div className="text-[11px] text-slate-500">
-              ${totalMonthlySavingsCad.toFixed(2)} CAD / month
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Simulator Interactive Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 7 Cols: Controls */}
-        <div className="lg:col-span-7 bg-[#11141C] border border-slate-800 rounded-xl p-6 space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-cyan-400" />
-              Operational Parameters
-            </h3>
-            <span className="text-xs font-mono text-slate-500">
-              Affects 3,550 GTA Edge Nodes
-            </span>
-          </div>
-
-          {/* Control 1: Ingestion Frequency */}
-          <div className="space-y-3 p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-white font-mono">
-                  1. IoT Edge Gateway Ping Rate:
-                </div>
-                <div className="text-[11px] text-slate-400">
-                  Frequency of RTU & Chiller pressure / vibration telemetry pushes to Azure IoT Hub.
-                </div>
-              </div>
-              <span className="text-xs font-mono font-bold text-cyan-400 bg-[#11141C] px-2.5 py-1 rounded border border-slate-800">
-                {pingInterval}s Interval
-              </span>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2 pt-2">
-              {[5, 15, 30, 60].map((val) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setPingInterval(val)}
-                  className={`py-2 px-3 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                    pingInterval === val
-                      ? 'bg-cyan-500 text-[#0B0F17] font-bold shadow-[0_0_8px_rgba(6,182,212,0.3)]'
-                      : 'bg-[#11141C] text-slate-400 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  {val}s {val === 15 ? '(Baseline)' : val === 30 ? '(Eco)' : val === 60 ? '(Max Save)' : '(High)'}
-                </button>
-              ))}
-            </div>
-            <div className="text-[11px] text-slate-400 font-mono">
-              Impact: <strong className={pingSavings >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                {pingSavings >= 0 ? `+$${pingSavings} CAD/mo savings` : `-$${Math.abs(pingSavings)} CAD/mo higher spend`}
-              </strong>
-            </div>
-          </div>
-
-          {/* Control 2: Storage Retention & Blob Lifecycle */}
-          <div className="space-y-3 p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-white font-mono">
-                  2. Hot Blob Storage Data Retention:
-                </div>
-                <div className="text-[11px] text-slate-400">
-                  Automatically move historical vibration & refrigerant logs to Cool/Archive Storage.
-                </div>
-              </div>
-              <span className="text-xs font-mono font-bold text-cyan-400 bg-[#11141C] px-2.5 py-1 rounded border border-slate-800">
-                {storageRetentionDays} Days Hot
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 pt-2">
-              {[30, 60, 90].map((val) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setStorageRetentionDays(val)}
-                  className={`py-2 px-3 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                    storageRetentionDays === val
-                      ? 'bg-cyan-500 text-[#0B0F17] font-bold'
-                      : 'bg-[#11141C] text-slate-400 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  {val} Days {val === 30 ? '(Recommended)' : val === 90 ? '(Current)' : ''}
-                </button>
-              ))}
-            </div>
-            <div className="text-[11px] text-slate-400 font-mono">
-              Data Lake Savings: <strong className="text-emerald-400">+${storageSavings} CAD/mo</strong>
-            </div>
-          </div>
-
-          {/* Control 3: Off-Peak Cosmos DB Autoscaling */}
-          <div className="flex items-center justify-between p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-            <div>
-              <div className="text-xs font-bold text-white font-mono">
-                3. Cosmos DB Off-Peak Downscale (10 PM - 5 AM EDT)
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Scales RU/s down by 60% during overnight commercial HVAC shutdown hours.
-              </div>
-            </div>
-            <button
-              onClick={() => setNightAutoScaling(!nightAutoScaling)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                nightAutoScaling
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-slate-800 text-slate-400'
-              }`}
-            >
-              {nightAutoScaling ? 'ENABLED (+$420/mo)' : 'DISABLED'}
-            </button>
-          </div>
-
-          {/* Control 4: 1-Year Azure Reserved Instances */}
-          <div className="flex items-center justify-between p-4 rounded-xl bg-[#0B0F17] border border-slate-800">
-            <div>
-              <div className="text-xs font-bold text-white font-mono">
-                4. Commit to 1-Year Azure Reserved Instances
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Switch pay-as-you-go legacy bridge VMs to 1-Year RI commitment for 38% discount.
-              </div>
-            </div>
-            <button
-              onClick={() => setApplyReservedInstances(!applyReservedInstances)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                applyReservedInstances
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-slate-800 text-slate-400'
-              }`}
-            >
-              {applyReservedInstances ? 'COMMITTED (+$390/mo)' : 'PAY-AS-YOU-GO'}
-            </button>
-          </div>
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#f3f2f1] hover:text-white bg-[#252423] hover:bg-[#323130] border border-[#3b3a39] px-3 py-1.5 rounded transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset Defaults</span>
+          </button>
         </div>
 
-        {/* Right 5 Cols: Financial Projection */}
-        <div className="lg:col-span-5 bg-[#11141C] border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-base font-bold text-white">
-                Financial Summary
+        {/* Simulator Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+          {/* Controls Column */}
+          <div className="lg:col-span-7 space-y-5">
+            {/* Control 1: RTU Telemetry Sampling */}
+            <div className="bg-[#252423] border border-[#3b3a39] rounded p-4 space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-[#f3f2f1]">RTU Edge Telemetry Ingestion Frequency</span>
+                <span className="font-mono font-semibold text-[#00ccff] bg-[#0078D4]/25 px-2 py-0.5 rounded border border-[#0078D4]/40">
+                  Every {rtuSamplingRate} seconds
+                </span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="60"
+                step="1"
+                value={rtuSamplingRate}
+                onChange={(e) => setRtuSamplingRate(Number(e.target.value))}
+                className="w-full accent-[#00ccff] cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-[#a19f9d] font-mono">
+                <span>1s (High Frequency / Cost Spike)</span>
+                <span>15s (Standard Recommended)</span>
+                <span>60s (Ultra Economy)</span>
+              </div>
+            </div>
+
+            {/* Control 2: Cosmos DB Hot Retention TTL */}
+            <div className="bg-[#252423] border border-[#3b3a39] rounded p-4 space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-[#f3f2f1]">Cosmos DB Hot Diagnostics Retention (TTL)</span>
+                <span className="font-mono font-semibold text-[#00ccff] bg-[#0078D4]/25 px-2 py-0.5 rounded border border-[#0078D4]/40">
+                  {cosmosTtlDays} days
+                </span>
+              </div>
+              <input
+                type="range"
+                min="14"
+                max="365"
+                step="7"
+                value={cosmosTtlDays}
+                onChange={(e) => setCosmosTtlDays(Number(e.target.value))}
+                className="w-full accent-[#00ccff] cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-[#a19f9d] font-mono">
+                <span>14 Days (Minimum)</span>
+                <span>90 Days (Standard SLA)</span>
+                <span>365 Days (Compliance)</span>
+              </div>
+            </div>
+
+            {/* Control 3: Stream Analytics Units */}
+            <div className="bg-[#252423] border border-[#3b3a39] rounded p-4 space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-[#f3f2f1]">Stream Analytics Compute Provisioning (SUs)</span>
+                <span className="font-mono font-semibold text-[#00ccff] bg-[#0078D4]/25 px-2 py-0.5 rounded border border-[#0078D4]/40">
+                  {streamAnalyticsUnits} Streaming Units
+                </span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="12"
+                step="1"
+                value={streamAnalyticsUnits}
+                onChange={(e) => setStreamAnalyticsUnits(Number(e.target.value))}
+                className="w-full accent-[#00ccff] cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Savings Projection Card */}
+          <div className="lg:col-span-5 bg-[#1b1a19] text-[#f3f2f1] border border-[#3b3a39] rounded-lg p-6 flex flex-col justify-between shadow-xl">
+            <div>
+              <div className="flex items-center gap-2 text-[#00ccff] text-xs font-mono font-semibold uppercase tracking-wider">
+                <Sparkles className="w-4 h-4" />
+                <span>Simulated Financial Impact</span>
+              </div>
+              <h3 className="text-xl font-semibold mt-2 text-[#f3f2f1]">
+                GTA Fleet Run-Rate Model
               </h3>
-              <span className="text-xs font-mono text-cyan-400">
-                GTA Model
-              </span>
+              <p className="text-xs text-[#a19f9d] mt-1">
+                Estimated Azure Canada Central bill based on simulated parameter twin adjustments.
+              </p>
             </div>
 
-            <div className="space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F17] border border-slate-800">
-                <span className="text-slate-400">Current Monthly Run-Rate:</span>
-                <span className="text-white font-bold">$14,842.80 CAD</span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F17] border border-slate-800">
-                <span className="text-slate-400">Optimized Run-Rate:</span>
-                <span className="text-emerald-400 font-bold">
-                  ${(14842.80 - totalMonthlySavingsCad).toFixed(2)} CAD
+            <div className="my-6 space-y-4 font-mono">
+              <div className="flex justify-between text-xs text-[#a19f9d]">
+                <span>Simulated Monthly Cloud Spend:</span>
+                <span className="text-[#f3f2f1] font-bold text-base">
+                  ${totalSimulatedCostCad.toFixed(2)} CAD
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                <span className="text-emerald-300">Monthly Net Savings:</span>
-                <span className="text-emerald-400 font-bold text-sm">
-                  +${totalMonthlySavingsCad.toFixed(2)} CAD / mo
+              <div className="p-4 rounded bg-[#0078D4]/20 border border-[#0078D4]/50">
+                <span className="text-[10px] text-[#c7e0f4] block uppercase font-semibold">Projected Monthly Savings</span>
+                <span className="text-2xl font-bold text-[#00ccff]">
+                  +${monthlySavingsCad.toFixed(2)} <span className="text-xs text-[#a19f9d] font-normal">CAD / mo</span>
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                <span className="text-cyan-300">Optimized Cost / Unit:</span>
-                <span className="text-cyan-400 font-bold text-sm">
-                  ${((14842.80 - totalMonthlySavingsCad) / 3550).toFixed(2)} CAD
+              <div className="flex justify-between text-xs text-[#a19f9d]">
+                <span>Annualized Net Savings:</span>
+                <span className="text-[#107c10] font-bold">
+                  +${annualSavingsCad.toFixed(2)} CAD / yr
                 </span>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#0B0F17] border border-slate-800 text-[11px] text-slate-400 leading-relaxed font-mono">
-              ℹ️ Telemetry frequency reduction from 15s to 30s satisfies 100% of Ontario TSSA & ASHRAE Guideline 36 requirements.
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-4 border-t border-slate-800">
-            {appliedSuccessfully ? (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Cloud Policy Script Queued for Device Twin Sync</span>
+            {appliedFeedback ? (
+              <div className="w-full bg-[#107c10]/20 text-[#107c10] border border-[#107c10]/50 font-semibold py-2.5 px-4 rounded text-xs flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Parameters Synced to 85 Device Twins!</span>
               </div>
             ) : (
               <button
                 onClick={handleApply}
-                disabled={isApplying || totalMonthlySavingsCad === 0}
-                className="w-full py-2.5 px-4 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-[#0B0F17] font-bold text-xs uppercase tracking-wide transition-all shadow-[0_0_12px_rgba(6,182,212,0.25)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-[#0078D4] hover:bg-[#106EBE] text-white font-semibold py-2.5 px-4 rounded text-xs flex items-center justify-center gap-2 shadow-xs transition-all active:scale-95 cursor-pointer"
               >
-                {isApplying ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-[#0B0F17]" />
-                    <span>Deploying Edge Twin Config...</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 fill-[#0B0F17]" />
-                    <span>Apply Cloud Policies (${annualizedSavingsCad.toFixed(0)} CAD/yr)</span>
-                  </>
-                )}
+                <Zap className="w-4 h-4" />
+                <span>Apply Configuration to Azure Twins</span>
               </button>
             )}
           </div>
