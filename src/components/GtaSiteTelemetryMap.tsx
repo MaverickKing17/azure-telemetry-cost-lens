@@ -14,18 +14,18 @@ export const GtaSiteTelemetryMap: React.FC<GtaSiteTelemetryMapProps> = ({
   onSelectZone,
 }) => {
   return (
-    <div className="bg-[#292827] border border-[#3b3a39] rounded-lg p-6 shadow-xl space-y-5 w-full text-[#f3f2f1]">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#3b3a39] pb-4">
+    <div className="bg-[#111622] border border-cyan-500/30 shadow-[0_0_20px_rgba(0,229,255,0.08)] rounded-2xl p-6 space-y-5 w-full text-white font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif] hover:border-cyan-400/50 transition-all duration-300">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-cyan-500/20 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded bg-[#0078D4]/20 border border-[#0078D4]/40 text-[#00ccff]">
-              <MapPin className="w-4 h-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+              <MapPin className="w-5 h-5" />
             </div>
-            <h2 className="text-base font-semibold text-[#f3f2f1] tracking-tight">
+            <h2 className="text-base font-bold text-white tracking-tight">
               Greater Toronto Area Telemetry Hubs & Zone Health
             </h2>
           </div>
-          <p className="text-xs text-[#a19f9d] mt-1">
+          <p className="text-xs text-slate-300 mt-1">
             Real-time IoT Edge connectivity, RTU count, and cloud ingestion cost attribution across GTA municipal sectors
           </p>
         </div>
@@ -33,7 +33,7 @@ export const GtaSiteTelemetryMap: React.FC<GtaSiteTelemetryMapProps> = ({
         {selectedZone !== 'all' && (
           <button
             onClick={() => onSelectZone('all')}
-            className="text-xs font-semibold text-[#00ccff] hover:text-white bg-[#0078D4]/20 hover:bg-[#0078D4]/40 border border-[#0078D4]/50 px-3 py-1 rounded transition-colors cursor-pointer"
+            className="text-xs font-bold text-[#00E5FF] hover:text-white bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 px-3.5 py-1.5 rounded-xl shadow-[0_0_10px_rgba(0,229,255,0.2)] transition-colors cursor-pointer"
           >
             Reset to All Regions
           </button>
@@ -50,51 +50,51 @@ export const GtaSiteTelemetryMap: React.FC<GtaSiteTelemetryMapProps> = ({
             <div
               key={zone.zoneId}
               onClick={() => onSelectZone(zone.shortName)}
-              className={`p-4 rounded border transition-all cursor-pointer relative overflow-hidden ${
+              className={`p-4.5 rounded-xl border transition-all duration-300 cursor-pointer relative overflow-hidden group ${
                 isSelected
-                  ? 'bg-[#0078D4]/20 border-[#00ccff] ring-2 ring-[#00ccff]/30 shadow-md'
+                  ? 'bg-cyan-950/50 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.25)] ring-1 ring-[#00E5FF]'
                   : hasAnomaly
-                  ? 'bg-[#a80000]/15 border-[#a80000]/50 hover:border-[#ff6b6b]'
-                  : 'bg-[#252423] border-[#3b3a39] hover:border-[#605e5c] hover:bg-[#323130]'
+                  ? 'bg-rose-950/30 border-rose-500/50 hover:border-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
+                  : 'bg-[#0B101D] border-slate-800 hover:border-cyan-400/60 hover:shadow-[0_0_15px_rgba(0,229,255,0.12)]'
               }`}
             >
               {/* Top Row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm text-[#f3f2f1]">{zone.shortName}</span>
+                  <span className="font-bold text-sm text-white group-hover:text-[#00E5FF] transition-colors">{zone.shortName}</span>
                 </div>
-                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase ${
+                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase ${
                   hasAnomaly 
-                    ? 'bg-[#ffaa00]/20 text-[#ffaa00] border border-[#ffaa00]/40'
-                    : 'bg-[#107c10]/20 text-[#107c10] border border-[#107c10]/40'
+                    ? 'bg-amber-950/80 text-amber-300 border border-amber-500/50'
+                    : 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/50'
                 }`}>
                   {zone.status}
                 </span>
               </div>
 
               {/* Stats */}
-              <div className="mt-3 space-y-1.5 font-mono text-xs">
-                <div className="flex justify-between text-[#a19f9d]">
+              <div className="mt-3.5 space-y-2 font-mono text-xs">
+                <div className="flex justify-between text-slate-300">
                   <span>Facilities:</span>
-                  <span className="text-[#f3f2f1] font-medium">{zone.clientCount} Commercial Sites</span>
+                  <span className="text-white font-semibold">{zone.clientCount} Commercial Sites</span>
                 </div>
-                <div className="flex justify-between text-[#a19f9d]">
+                <div className="flex justify-between text-slate-300">
                   <span>Equipment Units:</span>
-                  <span className="text-[#f3f2f1] font-medium">{zone.activeHvacUnits} HVAC Units</span>
+                  <span className="text-white font-semibold">{zone.activeHvacUnits} HVAC Units</span>
                 </div>
-                <div className="flex justify-between text-[#a19f9d] pt-2 border-t border-[#3b3a39]">
+                <div className="flex justify-between text-slate-300 pt-2 border-t border-slate-800">
                   <span>MTD Cloud Cost:</span>
-                  <span className="text-[#00ccff] font-bold text-sm">
+                  <span className="text-[#00E5FF] font-black text-sm neon-text-glow">
                     ${zone.costCadMtd.toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD
                   </span>
                 </div>
               </div>
 
               {/* Sub-note */}
-              <div className="mt-2.5 flex items-center justify-between text-[10px] text-[#a19f9d]">
+              <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400">
                 <span>Avg. ${zone.avgCostPerUnitCad.toFixed(2)}/unit</span>
-                <span className="text-[#00ccff] font-semibold flex items-center">
-                  Filter Zone <ArrowUpRight className="w-3 h-3 ml-0.5" />
+                <span className="text-[#00E5FF] font-bold flex items-center group-hover:translate-x-0.5 transition-transform">
+                  Filter Zone <ArrowUpRight className="w-3.5 h-3.5 ml-0.5" />
                 </span>
               </div>
             </div>
