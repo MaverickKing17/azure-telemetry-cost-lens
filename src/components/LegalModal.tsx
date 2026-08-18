@@ -29,6 +29,18 @@ export const LegalModal: React.FC<LegalModalProps> = ({ docType, onClose }) => {
     }
   }, [docType]);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (docType) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [docType, onClose]);
+
   if (!docType) return null;
 
   const legalContent: Record<LegalDocType, {
@@ -176,7 +188,15 @@ export const LegalModal: React.FC<LegalModalProps> = ({ docType, onClose }) => {
   const currentDoc = legalContent[activeTab];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="legal-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="bg-[#1C2541] border border-[#3A506B] rounded-xl w-full max-w-4xl shadow-[0_0_50px_rgba(111,255,233,0.18)] overflow-hidden flex flex-col max-h-[90vh] text-white font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif]">
         
         {/* Modal Top Header */}
@@ -187,7 +207,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ docType, onClose }) => {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
-                <h3 className="text-lg font-bold text-white tracking-tight">{currentDoc.title}</h3>
+                <h3 id="legal-modal-title" className="text-lg font-bold text-white tracking-tight">{currentDoc.title}</h3>
                 <span className="text-[10px] font-mono font-bold bg-[#0B132B] text-[#6FFFE9] border border-[#3A506B] px-2.5 py-0.5 rounded tracking-wide">
                   {currentDoc.badge}
                 </span>

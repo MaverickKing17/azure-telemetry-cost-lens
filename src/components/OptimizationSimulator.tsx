@@ -73,9 +73,20 @@ export const OptimizationSimulator: React.FC = () => {
             <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-4.5 space-y-3 shadow-inner hover:border-[#6FFFE9]/50 transition-colors">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-white">1. RTU Edge Telemetry Ingestion Frequency</span>
-                <span className="font-mono font-bold text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
-                  Every {rtuSamplingRate} seconds
-                </span>
+                <div className="flex items-center gap-2">
+                  {rtuCost - 3240 !== 0 && (
+                    <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
+                      rtuCost - 3240 > 0 
+                        ? 'text-[#EF4444] bg-[#EF4444]/15 border border-[#EF4444]/40' 
+                        : 'text-[#22C55E] bg-[#22C55E]/15 border border-[#22C55E]/40'
+                    }`}>
+                      {rtuCost - 3240 > 0 ? `+$${(rtuCost - 3240).toFixed(0)} / mo` : `-$${Math.abs(rtuCost - 3240).toFixed(0)} / mo`}
+                    </span>
+                  )}
+                  <span className="font-mono font-bold text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
+                    Every {rtuSamplingRate} seconds
+                  </span>
+                </div>
               </div>
               <input
                 type="range"
@@ -98,9 +109,20 @@ export const OptimizationSimulator: React.FC = () => {
             <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-4.5 space-y-3 shadow-inner hover:border-[#6FFFE9]/50 transition-colors">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-white">2. Cosmos DB Hot Diagnostics Retention (TTL)</span>
-                <span className="font-mono font-bold text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
-                  {cosmosTtlDays} days
-                </span>
+                <div className="flex items-center gap-2">
+                  {cosmosCost - 2600 !== 0 && (
+                    <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
+                      cosmosCost - 2600 > 0 
+                        ? 'text-[#EF4444] bg-[#EF4444]/15 border border-[#EF4444]/40' 
+                        : 'text-[#22C55E] bg-[#22C55E]/15 border border-[#22C55E]/40'
+                    }`}>
+                      {cosmosCost - 2600 > 0 ? `+$${(cosmosCost - 2600).toFixed(0)} / mo` : `-$${Math.abs(cosmosCost - 2600).toFixed(0)} / mo`}
+                    </span>
+                  )}
+                  <span className="font-mono font-bold text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
+                    {cosmosTtlDays} days
+                  </span>
+                </div>
               </div>
               <input
                 type="range"
@@ -123,9 +145,20 @@ export const OptimizationSimulator: React.FC = () => {
             <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-4.5 space-y-3 shadow-inner hover:border-[#6FFFE9]/50 transition-colors">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-white">3. Stream Analytics Compute Provisioning (SUs)</span>
-                <span className="font-mono font-bold text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
-                  {streamAnalyticsUnits} Streaming Units
-                </span>
+                <div className="flex items-center gap-2">
+                  {streamCost - 2500 !== 0 && (
+                    <span className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${
+                      streamCost - 2500 > 0 
+                        ? 'text-[#EF4444] bg-[#EF4444]/15 border border-[#EF4444]/40' 
+                        : 'text-[#22C55E] bg-[#22C55E]/15 border border-[#22C55E]/40'
+                    }`}>
+                      {streamCost - 2500 > 0 ? `+$${(streamCost - 2500).toFixed(0)} / mo` : `-$${Math.abs(streamCost - 2500).toFixed(0)} / mo`}
+                    </span>
+                  )}
+                  <span className="font-mono font-bold text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
+                    {streamAnalyticsUnits} Streaming Units
+                  </span>
+                </div>
               </div>
               <input
                 type="range"

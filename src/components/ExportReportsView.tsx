@@ -152,7 +152,7 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
           <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 flex flex-col justify-between space-y-4 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.12)] transition-all duration-300">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase font-mono text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
+                <span className="text-[10px] font-semibold uppercase tracking-wider font-mono text-[#6FFFE9] bg-[#1C2541] px-2.5 py-1 rounded border border-[#3A506B]">
                   MONTHLY AUDIT
                 </span>
                 <Calendar className="w-4 h-4 text-[#BCF8EC]" />
@@ -160,6 +160,9 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
               <h3 className="font-bold text-white text-sm mt-3">
                 GTA Property Manager Billing Report
               </h3>
+              <div className="text-[10px] text-[#BCF8EC] font-mono mt-0.5">
+                Last generated: Today, 08:30 AM EST
+              </div>
               <p className="text-xs text-[#BCF8EC] mt-1.5 leading-relaxed">
                 Itemized cloud ingestion overhead apportioned by commercial square footage and mechanical tag.
               </p>
@@ -167,12 +170,12 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
             <button
               onClick={handleDownloadPdfSummary}
               disabled={downloadingReport === 'pdf-summary'}
-              className="text-xs font-bold text-white hover:text-[#6FFFE9] bg-[#1C2541] border border-[#3A506B] hover:border-[#6FFFE9] p-2.5 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+              className="text-xs font-bold text-white hover:text-[#6FFFE9] bg-[#1C2541] hover:bg-[#142247] border border-[#6FFFE9]/60 hover:border-[#6FFFE9] p-2.5 rounded-lg shadow-[0_0_12px_rgba(111,255,233,0.1)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {downloadingReport === 'pdf-summary' ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6FFFE9]" />
               ) : (
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5 text-[#6FFFE9]" />
               )}
               <span>{downloadingReport === 'pdf-summary' ? 'Preparing PDF...' : 'Download PDF Summary'}</span>
             </button>
@@ -182,7 +185,7 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
           <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 flex flex-col justify-between space-y-4 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.12)] transition-all duration-300">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase font-mono text-[#22C55E] bg-[#142A20] px-2.5 py-1 rounded border border-[#22C55E]/40">
+                <span className="text-[10px] font-semibold uppercase tracking-wider font-mono text-[#22C55E] bg-[#142A20] px-2.5 py-1 rounded border border-[#22C55E]/40">
                   COMPLIANCE
                 </span>
                 <ShieldCheck className="w-4 h-4 text-[#22C55E]" />
@@ -190,6 +193,9 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
               <h3 className="font-bold text-white text-sm mt-3">
                 TSSA & ODP Environmental Log
               </h3>
+              <div className="text-[10px] text-[#BCF8EC] font-mono mt-0.5">
+                Last generated: Today, 06:00 AM EST
+              </div>
               <p className="text-xs text-[#BCF8EC] mt-1.5 leading-relaxed">
                 Sensor logging verification records for refrigeration and pressure relief valve continuous monitoring.
               </p>
@@ -197,12 +203,12 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
             <button
               onClick={handleDownloadComplianceCert}
               disabled={downloadingReport === 'compliance-cert'}
-              className="text-xs font-bold text-white hover:text-[#6FFFE9] bg-[#1C2541] border border-[#3A506B] hover:border-[#6FFFE9] p-2.5 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+              className="text-xs font-bold text-white hover:text-[#6FFFE9] bg-[#1C2541] hover:bg-[#142247] border border-[#22C55E]/60 hover:border-[#22C55E] p-2.5 rounded-lg shadow-[0_0_12px_rgba(34,197,94,0.1)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {downloadingReport === 'compliance-cert' ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6FFFE9]" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#22C55E]" />
               ) : (
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5 text-[#22C55E]" />
               )}
               <span>{downloadingReport === 'compliance-cert' ? 'Preparing Certificate...' : 'Download Compliance Certificate'}</span>
             </button>
@@ -212,7 +218,7 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
           <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 flex flex-col justify-between space-y-4 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.12)] transition-all duration-300">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase font-mono text-[#6FFFE9] bg-[#0E2A3A] px-2.5 py-1 rounded border border-[#6FFFE9]/40">
+                <span className="text-[10px] font-semibold uppercase tracking-wider font-mono text-[#6FFFE9] bg-[#0E2A3A] px-2.5 py-1 rounded border border-[#6FFFE9]/40">
                   FIN-OPS
                 </span>
                 <FileCheck className="w-4 h-4 text-[#6FFFE9]" />
@@ -220,6 +226,9 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
               <h3 className="font-bold text-white text-sm mt-3">
                 Azure Raw Usage Data (Canada Central)
               </h3>
+              <div className="text-[10px] text-[#BCF8EC] font-mono mt-0.5">
+                Last generated: Today, 14:00 EST
+              </div>
               <p className="text-xs text-[#BCF8EC] mt-1.5 leading-relaxed">
                 Full grain hourly rate metrics matching Azure Resource Manager invoice line items in CAD.
               </p>
@@ -227,12 +236,12 @@ Status: FULLY COMPLIANT (0 Breaches Logged)
             <button
               onClick={handleDownloadRawData}
               disabled={downloadingReport === 'raw-data'}
-              className="text-xs font-bold text-white hover:text-[#6FFFE9] bg-[#1C2541] border border-[#3A506B] hover:border-[#6FFFE9] p-2.5 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+              className="text-xs font-bold text-white hover:text-[#6FFFE9] bg-[#1C2541] hover:bg-[#142247] border border-[#6FFFE9]/60 hover:border-[#6FFFE9] p-2.5 rounded-lg shadow-[0_0_12px_rgba(111,255,233,0.1)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {downloadingReport === 'raw-data' ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6FFFE9]" />
               ) : (
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5 text-[#6FFFE9]" />
               )}
               <span>{downloadingReport === 'raw-data' ? 'Preparing Raw Data...' : 'Download Raw JSON/CSV'}</span>
             </button>

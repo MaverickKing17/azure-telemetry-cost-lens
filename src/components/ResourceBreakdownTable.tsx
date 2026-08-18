@@ -78,28 +78,28 @@ export const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
     switch (status) {
       case 'Optimal':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#142A20] text-[#22C55E] border border-[#22C55E]/40">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-[#142A20] text-[#22C55E] border border-[#22C55E]/40">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] shadow-[0_0_6px_#22C55E]" />
             Optimal
           </span>
         );
       case 'Spike Warning':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2A1520] text-[#EF4444] border border-[#EF4444]/50 animate-pulse">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-[#2A1520] text-[#EF4444] border border-[#EF4444]/50 animate-pulse">
             <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shadow-[0_0_6px_#EF4444]" />
             Spike Warning
           </span>
         );
       case 'Over-provisioned':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2A2010] text-[#F59E0B] border border-[#F59E0B]/40">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-[#2A2010] text-[#F59E0B] border border-[#F59E0B]/40">
             <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shadow-[0_0_6px_#F59E0B]" />
             Over-provisioned
           </span>
         );
       case 'Tiering Candidate':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0E2A3A] text-[#6FFFE9] border border-[#6FFFE9]/50">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-[#0E2A3A] text-[#6FFFE9] border border-[#6FFFE9]/50">
             <span className="w-1.5 h-1.5 rounded-full bg-[#6FFFE9] shadow-[0_0_6px_#6FFFE9]" />
             Tiering Candidate
           </span>
@@ -179,9 +179,9 @@ export const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
       )}
 
       {/* Data Table */}
-      <div className="overflow-x-auto rounded-lg border border-[#3A506B] shadow-inner">
+      <div className="overflow-x-auto rounded-lg border border-[#3A506B] shadow-inner max-h-[500px]">
         <table className="w-full text-left text-xs border-collapse">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-[#0B132B] shadow-sm">
             <tr className="bg-[#0B132B] border-b border-[#3A506B] text-[#BCF8EC] font-bold text-xs uppercase tracking-wider font-mono">
               <th 
                 className="py-3.5 px-4 cursor-pointer hover:text-[#6FFFE9] select-none"
@@ -218,13 +218,13 @@ export const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-[#3A506B]/50 bg-[#0E172F]">
+          <tbody className="divide-y divide-[#3A506B]/50 bg-[#0E172F] leading-relaxed">
             {sortedResources.length > 0 ? (
               sortedResources.map((res) => (
                 <tr
                   key={res.id}
                   onClick={() => onSelectResource(res)}
-                  className="hover:bg-[#1C2541] transition-colors cursor-pointer group"
+                  className="hover:bg-[#1C2541] hover:outline hover:outline-1 hover:outline-[#6FFFE9]/30 transition-all cursor-pointer group"
                 >
                   {/* Name & Tier */}
                   <td className="py-3.5 px-4">

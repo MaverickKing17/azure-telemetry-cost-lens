@@ -89,13 +89,14 @@ export const ThresholdAlertsView: React.FC<ThresholdAlertsViewProps> = ({ initia
           {rules.map((rule) => {
             const isExceeded = rule.status === 'exceeded';
             const isWarning = rule.status === 'warning';
+            const percentOfCap = rule.monthlyBudgetCapCad > 0 ? Math.round((rule.currentSpendCad / rule.monthlyBudgetCapCad) * 100) : 0;
 
             return (
               <div
                 key={rule.id}
                 className={`p-4 rounded-xl border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
                   isExceeded 
-                    ? 'bg-[#2A1520] border-[#EF4444]/60 red-glow' 
+                    ? 'bg-[#2A1520] border-[#EF4444] red-glow shadow-[0_0_15px_rgba(239,68,68,0.25)]' 
                     : isWarning
                     ? 'bg-[#2A2010] border-[#F59E0B]/50'
                     : 'bg-[#0B132B] border-[#3A506B] hover:border-[#6FFFE9]'
@@ -111,19 +112,19 @@ export const ThresholdAlertsView: React.FC<ThresholdAlertsViewProps> = ({ initia
                       {rule.equipmentType}
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#BCF8EC] font-mono">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#BCF8EC] font-mono leading-relaxed">
                     <span>Current: <strong className="text-white font-bold">${rule.currentSpendCad.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD</strong></span>
                     <span>•</span>
-                    <span>Cap: <strong className="text-white font-bold">${rule.monthlyBudgetCapCad.toLocaleString()} CAD/mo</strong></span>
+                    <span>Cap: <strong className="text-white font-bold">${rule.monthlyBudgetCapCad.toLocaleString()} CAD/mo</strong> <span className={isExceeded ? 'text-[#EF4444] font-bold' : 'text-[#BCF8EC]'}>({percentOfCap}% of cap)</span></span>
                     <span>•</span>
                     <span>Notify: {rule.notifyEmails.join(', ')}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className={`text-[10px] font-bold font-mono px-3 py-1 rounded uppercase tracking-wider ${
+                  <span className={`text-[10px] font-semibold font-mono px-3 py-1 rounded uppercase tracking-wider ${
                     isExceeded
-                      ? 'bg-[#EF4444] text-white shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                      ? 'bg-[#EF4444] text-white shadow-[0_0_8px_rgba(239,68,68,0.5)] font-bold'
                       : isWarning
                       ? 'bg-[#F59E0B] text-[#0B132B] font-black'
                       : 'bg-[#22C55E] text-[#0B132B] font-black'
@@ -133,7 +134,11 @@ export const ThresholdAlertsView: React.FC<ThresholdAlertsViewProps> = ({ initia
 
                   <button
                     onClick={() => toggleRule(rule.id, rule.clientName)}
-                    className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#0B132B] border border-[#3A506B] hover:border-[#6FFFE9] hover:text-[#6FFFE9] text-white transition-all cursor-pointer shadow-sm active:scale-95"
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 ${
+                      isExceeded
+                        ? 'bg-[#EF4444] hover:bg-[#DC2626] text-white border border-[#EF4444] shadow-[0_0_12px_rgba(239,68,68,0.4)]'
+                        : 'bg-[#0B132B] border border-[#3A506B] hover:border-[#6FFFE9] hover:text-[#6FFFE9] text-white'
+                    }`}
                   >
                     Configure
                   </button>

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Activity, 
   RefreshCw, 
-  Server
+  Server,
+  Play,
+  Pause
 } from 'lucide-react';
 import { EquipmentCostSummary } from '../types/cost-types';
 
@@ -12,13 +14,19 @@ interface FleetTelemetryViewProps {
 
 export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmentData }) => {
   const [pulseCount, setPulseCount] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>(
+    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  );
 
   useEffect(() => {
+    if (isPaused) return;
     const interval = setInterval(() => {
       setPulseCount((prev) => prev + 1);
+      setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused]);
 
   const sampleTelemetryStreams = [
     {
@@ -128,19 +136,35 @@ export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmen
 
       {/* Stream Inspect Table */}
       <div className="bg-[#1C2541] border border-[#3A506B] rounded-xl p-6 shadow-[0_0_20px_rgba(111,255,233,0.06)] hover:border-[#6FFFE9] transition-all duration-300 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
           <h3 className="text-sm font-bold text-white">
             Real-Time Sample Ingestion Log (Live Feed)
           </h3>
-          <span className="text-xs font-mono text-[#6FFFE9] bg-[#0B132B] px-3 py-1 rounded-full border border-[#3A506B] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#6FFFE9] animate-ping" />
-            <span>Auto-refreshing every 5s (Cycle #{pulseCount})</span>
-          </span>
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
+            <span className="text-[#BCF8EC] text-[11px]">
+              Last updated: <strong className="text-white font-bold">{lastUpdated}</strong>
+            </span>
+            <span className="text-[#3A506B]">•</span>
+            <div className="flex items-center gap-2 bg-[#0B132B] px-3 py-1 rounded-full border border-[#3A506B]">
+              <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-[#F59E0B]' : 'bg-[#6FFFE9] animate-ping'}`} />
+              <span className="text-[#6FFFE9]">
+                {isPaused ? 'Paused' : `Auto-refreshing every 5s (Cycle #${pulseCount})`}
+              </span>
+              <button
+                onClick={() => setIsPaused(!isPaused)}
+                className="ml-1 text-[#BCF8EC] hover:text-white bg-[#1C2541] hover:bg-[#142247] border border-[#3A506B] px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                title={isPaused ? 'Resume live feed' : 'Pause live feed'}
+              >
+                {isPaused ? <Play className="w-2.5 h-2.5 text-[#22C55E]" /> : <Pause className="w-2.5 h-2.5 text-[#F59E0B]" />}
+                <span>{isPaused ? 'Resume' : 'Pause'}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-[#3A506B] shadow-inner">
-          <table className="w-full text-left text-xs">
-            <thead>
+        <div className="overflow-x-auto rounded-lg border border-[#3A506B] shadow-inner max-h-[500px]">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="sticky top-0 z-10 bg-[#0B132B] shadow-sm">
               <tr className="bg-[#0B132B] border-b border-[#3A506B] text-[#BCF8EC] font-bold text-xs uppercase tracking-wider font-mono">
                 <th className="py-3.5 px-4">Device Node ID / Site</th>
                 <th className="py-3.5 px-4">Equipment Model</th>
@@ -150,9 +174,9 @@ export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmen
                 <th className="py-3.5 px-4 text-right">Daily Cost</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#3A506B]/50 bg-[#0E172F] font-mono">
+            <tbody className="divide-y divide-[#3A506B]/50 bg-[#0E172F] font-mono leading-relaxed">
               {sampleTelemetryStreams.map((stream) => (
-                <tr key={stream.id} className="hover:bg-[#1C2541] transition-colors">
+                <tr key={stream.id} className="hover:bg-[#1C2541] hover:outline hover:outline-1 hover:outline-[#6FFFE9]/30 transition-all">
                   <td className="py-3.5 px-4">
                     <div className="font-bold text-white">{stream.id}</div>
                     <div className="text-[11px] text-[#BCF8EC] font-sans">{stream.name}</div>
@@ -160,7 +184,7 @@ export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmen
                   <td className="py-3.5 px-4 text-white font-sans font-medium">{stream.type}</td>
                   <td className="py-3.5 px-4 text-[#BCF8EC] font-sans">{stream.zone}</td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#0B132B] text-[#6FFFE9] border border-[#6FFFE9]/50 text-[11px] font-bold">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#0B132B] text-[#6FFFE9] border border-[#6FFFE9]/50 text-[11px] font-semibold uppercase tracking-wider">
                       {stream.pingRate}
                     </span>
                   </td>

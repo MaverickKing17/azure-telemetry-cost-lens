@@ -13,6 +13,12 @@
     --color-red: #EF4444;
   }
 
+  *,
+  *::before,
+  *::after {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  }
+
   html,
   body,
   #root {
@@ -22,8 +28,15 @@
     padding: 0;
     background-color: #0B132B;
     color: #FFFFFF;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
     overflow-x: hidden;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 }
 
@@ -58,8 +71,9 @@
   text-shadow: 0 0 10px rgba(111, 255, 233, 0.4);
 }
 
-/* Focus styles */
+/* Focus styles for keyboard accessibility */
 *:focus-visible {
-  outline: 2px solid #6FFFE9;
-  outline-offset: 2px;
+  outline: 2px solid #6FFFE9 !important;
+  outline-offset: 2px !important;
 }
+

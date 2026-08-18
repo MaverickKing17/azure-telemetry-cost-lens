@@ -12,10 +12,30 @@ interface ResourceDetailModalProps {
 }
 
 export const ResourceDetailModal: React.FC<ResourceDetailModalProps> = ({ resource, onClose }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (resource) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [resource, onClose]);
+
   if (!resource) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resource-detail-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="bg-[#1C2541] border border-[#3A506B] rounded-xl w-full max-w-2xl shadow-[0_0_50px_rgba(111,255,233,0.15)] overflow-hidden flex flex-col max-h-[90vh] text-white font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif]">
         {/* Modal Header */}
         <div className="p-6 border-b border-[#3A506B] flex items-start justify-between bg-[#0B132B]">
@@ -25,7 +45,7 @@ export const ResourceDetailModal: React.FC<ResourceDetailModalProps> = ({ resour
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white">{resource.resourceName}</h3>
+                <h3 id="resource-detail-title" className="text-base font-bold text-white">{resource.resourceName}</h3>
                 <span className="text-[10px] font-mono bg-[#0B132B] text-[#6FFFE9] border border-[#3A506B] px-2 py-0.5 rounded font-medium">
                   {resource.azureMeterCategory}
                 </span>
