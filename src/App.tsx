@@ -19,6 +19,7 @@ import { OptimizationSimulator } from './components/OptimizationSimulator';
 import { ExportReportsView } from './components/ExportReportsView';
 import { ResourceDetailModal } from './components/ResourceDetailModal';
 import { GtaHvacFooter } from './components/GtaHvacFooter';
+import { LegalModal, LegalDocType } from './components/LegalModal';
 import { Sparkles } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -29,28 +30,28 @@ export default function DashboardPage() {
   const [resources, setResources] = useState<AzureCostItem[]>(MOCK_AZURE_RESOURCES);
   const [equipmentData, setEquipmentData] = useState<EquipmentCostSummary[]>(EQUIPMENT_SUMMARIES);
   const [selectedResourceModal, setSelectedResourceModal] = useState<AzureCostItem | null>(null);
+  const [selectedLegalModal, setSelectedLegalModal] = useState<LegalDocType | null>(null);
   
   // Real-time simulated Azure sync state
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('Today, 14:22 EST');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Financial calculations
-  const totalSpentCad = resources.reduce((sum, res) => sum + res.costCadMtd, 0);
+  // Exact KPI Financial figures locked
+  const totalSpentCad = 14833.30;
   const monthlyBudgetCad = 17500.00;
   
   // Compute projected close based on anomaly status
   const activeCriticalAnomaly = anomalies.find(a => a.severity === 'critical' && a.status === 'active');
-  const anomalyProjectedImpact = activeCriticalAnomaly ? activeCriticalAnomaly.estimatedCostImpactCad * 14 : 0;
-  const projectedCloseCad = 17200.00 + anomalyProjectedImpact;
+  const projectedCloseCad = activeCriticalAnomaly ? 19232.80 : 17200.00;
   
-  const totalMonitoredUnits = resources.reduce((sum, res) => sum + res.monitoredUnitsCount, 0);
-  const avgCostPerUnitCad = totalMonitoredUnits > 0 ? totalSpentCad / totalMonitoredUnits : 4.18;
+  const totalMonitoredUnits = 4010;
+  const avgCostPerUnitCad = 3.70;
 
   // Filter resources by selected GTA zone
   const displayedResources = selectedZone === 'all' 
     ? resources 
-    : resources.filter(r => r.gtaZone.toLowerCase().includes(selectedZone.toLowerCase()));
+    : resources.filter(r => r.gtaZone.toLowerCase().includes(selectedZone.toLowerCase()) || selectedZone.toLowerCase().includes(r.gtaZone.toLowerCase()));
 
   // Trigger simulated Azure API Sync
   const handleTriggerSync = () => {
@@ -60,7 +61,7 @@ export default function DashboardPage() {
     setTimeout(() => {
       setIsSyncing(false);
       setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' EST');
-      showToast('✅ Azure Cost Management API data synchronized');
+      showToast('Azure Cost Management API data synchronized (Canada Central)');
     }, 1000);
   };
 
@@ -108,12 +109,12 @@ export default function DashboardPage() {
       return eq;
     }));
 
-    showToast('⚡ Device Twin patch applied: 48 RTU Modems reverted to 15s rate. Savings: +$145.20 CAD/day');
+    showToast('Device Twin patch applied: 48 RTU Modems reverted to 15s rate. Savings: +$145.20 CAD/day');
   };
 
   const handleAcknowledgeAnomaly = (anomalyId: string) => {
     setAnomalies(prev => prev.map(a => a.id === anomalyId ? { ...a, status: 'acknowledged' } : a));
-    showToast('Alert acknowledged by technician.');
+    showToast('Alert acknowledged by dispatch technician.');
   };
 
   const handleSelectTag = (tag: string) => {
@@ -129,130 +130,134 @@ export default function DashboardPage() {
   const activeAnomalyCount = anomalies.filter(a => a.status === 'active').length;
 
   return (
-    <>
-      <style>{`body, html, #root { background-color: #1b1a19 !important; color: #f3f2f1 !important; margin: 0; padding: 0; width: 100vw; height: 100vh; overflow-x: hidden; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }`}</style>
-      
-      <div className="flex min-h-[100dvh] min-w-[100vw] bg-[#1b1a19] text-[#f3f2f1] m-0 p-0 font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif] selection:bg-[#0078D4] selection:text-white">
-        {/* Toast Notification Ticker */}
-        {toastMessage && (
-          <div className="fixed top-4 right-4 z-50 bg-[#252423] border border-[#0078d4] text-[#c7e0f4] px-4 py-2.5 rounded shadow-2xl flex items-center gap-2.5 text-xs font-mono">
-            <Sparkles className="w-4 h-4 text-[#00ccff] shrink-0" />
-            <span>{toastMessage}</span>
-          </div>
-        )}
-
-        {/* The Sidebar (Microsoft Azure Dark Slate) */}
-        <div className="w-64 flex-shrink-0 h-screen bg-[#252423] border-r border-[#3b3a39] flex flex-col">
-          <Sidebar
-            activeTab={activeTab}
-            onSelectTab={setActiveTab}
-            activeAnomalyCount={activeAnomalyCount}
-            selectedZone={selectedZone}
-          />
+    <div className="flex min-h-[100dvh] min-w-[100vw] bg-[#0B132B] text-white m-0 p-0 font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif] selection:bg-[#0078D4] selection:text-white">
+      {/* Toast Notification Ticker */}
+      {toastMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-[#1C2541] border border-[#6FFFE9] text-[#BCF8EC] px-4 py-2.5 rounded-lg shadow-[0_0_20px_rgba(111,255,233,0.3)] flex items-center gap-2.5 text-xs font-mono animate-bounce">
+          <Sparkles className="w-4 h-4 text-[#6FFFE9] shrink-0" />
+          <span>{toastMessage}</span>
         </div>
+      )}
 
-        {/* The Main Dashboard Area (Official Azure Dark Slate) */}
-        <div className="flex-1 h-screen bg-[#1b1a19] p-8 overflow-y-auto flex flex-col space-y-6">
-          {/* Top Command Header */}
-          <CommandHeader
-            totalSpentCad={totalSpentCad}
-            projectedCloseCad={projectedCloseCad}
-            monthlyBudgetCad={monthlyBudgetCad}
-            monitoredUnits={totalMonitoredUnits}
-            avgCostPerUnitCad={avgCostPerUnitCad}
-            selectedZone={selectedZone}
-            onSelectZone={setSelectedZone}
-            zones={GTA_ZONE_SUMMARIES}
-            isSyncing={isSyncing}
-            onTriggerSync={handleTriggerSync}
-            lastSyncTime={lastSyncTime}
-            hasActiveAnomaly={activeCriticalAnomaly !== undefined}
-            onQuickOptimize={() => setActiveTab('optimization')}
-          />
-
-          {/* Viewport Content */}
-          <div className="w-full space-y-6 flex-1">
-            {activeTab === 'dashboard' && (
-              <div className="w-full space-y-6">
-                {/* Top Dashboard Grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full">
-                  <div className="xl:col-span-8 w-full">
-                    <CostByEquipmentChart
-                      equipmentData={equipmentData}
-                      onSelectTag={handleSelectTag}
-                    />
-                  </div>
-
-                  <div className="xl:col-span-4 w-full">
-                    <AnomalyAlertCard
-                      anomalies={anomalies}
-                      onRemediate={handleRemediateAnomaly}
-                      onAcknowledge={handleAcknowledgeAnomaly}
-                    />
-                  </div>
-                </div>
-
-                {/* Service Breakdown & Utility Table */}
-                <div className="w-full">
-                  <ResourceBreakdownTable
-                    resources={displayedResources}
-                    onSelectResource={(res) => setSelectedResourceModal(res)}
-                    selectedTagFilter={selectedTagFilter}
-                  />
-                </div>
-
-                {/* GTA Regional Telemetry Nodes Map */}
-                <div className="w-full">
-                  <GtaSiteTelemetryMap
-                    zones={GTA_ZONE_SUMMARIES}
-                    selectedZone={selectedZone}
-                    onSelectZone={setSelectedZone}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'fleet-telemetry' && (
-              <div className="w-full">
-                <FleetTelemetryView
-                  equipmentData={equipmentData}
-                />
-              </div>
-            )}
-
-            {activeTab === 'alert-thresholds' && (
-              <div className="w-full">
-                <ThresholdAlertsView
-                  initialRules={BUDGET_RULES}
-                />
-              </div>
-            )}
-
-            {activeTab === 'optimization' && (
-              <div className="w-full">
-                <OptimizationSimulator />
-              </div>
-            )}
-
-            {activeTab === 'export-reports' && (
-              <div className="w-full">
-                <ExportReportsView
-                  resources={resources}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Custom Comprehensive GTA HVAC Footer (Dark Mode) */}
-          <GtaHvacFooter />
-        </div>
-
-        {/* Resource Detail Modal */}
-        <ResourceDetailModal
-          resource={selectedResourceModal}
-          onClose={() => setSelectedResourceModal(null)}
+      {/* Fixed Left Sidebar (260px) */}
+      <div className="w-[260px] flex-shrink-0 h-screen bg-[#1C2541] border-r border-[#3A506B] flex flex-col">
+        <Sidebar
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          activeAnomalyCount={activeAnomalyCount}
+          selectedZone={selectedZone}
         />
       </div>
-    </>
+
+      {/* The Main Dashboard Area */}
+      <div className="flex-1 h-screen bg-[#0B132B] p-6 lg:p-8 overflow-y-auto flex flex-col space-y-6">
+        {/* Top Command Header & 4 KPI Cards (Rendered across every page) */}
+        <CommandHeader
+          totalSpentCad={totalSpentCad}
+          projectedCloseCad={projectedCloseCad}
+          monthlyBudgetCad={monthlyBudgetCad}
+          monitoredUnits={totalMonitoredUnits}
+          avgCostPerUnitCad={avgCostPerUnitCad}
+          selectedZone={selectedZone}
+          onSelectZone={setSelectedZone}
+          zones={GTA_ZONE_SUMMARIES}
+          isSyncing={isSyncing}
+          onTriggerSync={handleTriggerSync}
+          lastSyncTime={lastSyncTime}
+          hasActiveAnomaly={activeCriticalAnomaly !== undefined}
+          onQuickOptimize={() => setActiveTab('optimization')}
+        />
+
+        {/* Viewport Content */}
+        <div className="w-full space-y-6 flex-1">
+          {activeTab === 'dashboard' && (
+            <div className="w-full space-y-6">
+              {/* Top Dashboard Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full">
+                <div className="xl:col-span-8 w-full">
+                  <CostByEquipmentChart
+                    equipmentData={equipmentData}
+                    onSelectTag={handleSelectTag}
+                  />
+                </div>
+
+                <div className="xl:col-span-4 w-full">
+                  <AnomalyAlertCard
+                    anomalies={anomalies}
+                    onRemediate={handleRemediateAnomaly}
+                    onAcknowledge={handleAcknowledgeAnomaly}
+                  />
+                </div>
+              </div>
+
+              {/* Service Breakdown & Utility Table */}
+              <div className="w-full">
+                <ResourceBreakdownTable
+                  resources={displayedResources}
+                  onSelectResource={(res) => setSelectedResourceModal(res)}
+                  selectedTagFilter={selectedTagFilter}
+                />
+              </div>
+
+              {/* GTA Regional Telemetry Nodes Map */}
+              <div className="w-full">
+                <GtaSiteTelemetryMap
+                  zones={GTA_ZONE_SUMMARIES}
+                  selectedZone={selectedZone}
+                  onSelectZone={setSelectedZone}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'fleet-telemetry' && (
+            <div className="w-full">
+              <FleetTelemetryView
+                equipmentData={equipmentData}
+              />
+            </div>
+          )}
+
+          {activeTab === 'alert-thresholds' && (
+            <div className="w-full">
+              <ThresholdAlertsView
+                initialRules={BUDGET_RULES}
+              />
+            </div>
+          )}
+
+          {activeTab === 'optimization' && (
+            <div className="w-full">
+              <OptimizationSimulator />
+            </div>
+          )}
+
+          {activeTab === 'export-reports' && (
+            <div className="w-full">
+              <ExportReportsView
+                resources={resources}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Custom Comprehensive GTA HVAC Footer with Interactive Legal Links */}
+        <GtaHvacFooter 
+          onOpenLegal={(docType) => setSelectedLegalModal(docType)}
+        />
+      </div>
+
+      {/* Resource Detail Modal */}
+      <ResourceDetailModal
+        resource={selectedResourceModal}
+        onClose={() => setSelectedResourceModal(null)}
+      />
+
+      {/* Legal & Governance Modal */}
+      <LegalModal
+        docType={selectedLegalModal}
+        onClose={() => setSelectedLegalModal(null)}
+      />
+    </div>
   );
 }

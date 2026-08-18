@@ -1,6 +1,18 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --bg-canvas: #0B132B;
+    --bg-card: #1C2541;
+    --border-main: #3A506B;
+    --text-primary: #FFFFFF;
+    --text-secondary: #BCF8EC;
+    --accent-cyan: #6FFFE9;
+    --color-green: #22C55E;
+    --color-amber: #F59E0B;
+    --color-red: #EF4444;
+  }
+
   html,
   body,
   #root {
@@ -15,30 +27,39 @@
   }
 }
 
-/* Custom scrollbar for Vibrant Corporate Blue Theme */
+/* Custom scrollbar for Rich Midnight & Cyan Theme */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
   background: #0B132B;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3A506B;
-  border-radius: 3px;
-  border: 1px solid rgba(111, 255, 233, 0.2);
+  background: #1C2541;
+  border-radius: 4px;
+  border: 1px solid #3A506B;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #6FFFE9;
 }
 
-/* Ice & Mint Glow Utilities */
-.ice-glow-sm {
-  box-shadow: 0 0 15px rgba(111, 255, 233, 0.25);
+/* Outer Glow Utilities */
+.cyan-glow {
+  box-shadow: 0 0 20px rgba(111, 255, 233, 0.15);
 }
-.ice-glow-lg {
-  box-shadow: 0 0 25px rgba(0, 245, 212, 0.35);
+.cyan-glow-lg {
+  box-shadow: 0 0 30px rgba(111, 255, 233, 0.25);
 }
-.ice-text-glow {
-  text-shadow: 0 0 12px rgba(111, 255, 233, 0.5);
+.red-glow {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+.cyan-text-glow {
+  text-shadow: 0 0 10px rgba(111, 255, 233, 0.4);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #6FFFE9;
+  outline-offset: 2px;
 }

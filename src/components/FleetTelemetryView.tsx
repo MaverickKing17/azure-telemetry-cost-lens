@@ -1,17 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Activity, 
-  Radio, 
-  Server, 
-  Cpu, 
   RefreshCw, 
-  Layers, 
-  Sliders, 
-  CheckCircle2, 
-  AlertCircle,
-  Thermometer,
-  Wind,
-  Gauge
+  Server
 } from 'lucide-react';
 import { EquipmentCostSummary } from '../types/cost-types';
 
@@ -20,6 +11,15 @@ interface FleetTelemetryViewProps {
 }
 
 export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmentData }) => {
+  const [pulseCount, setPulseCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPulseCount((prev) => prev + 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const sampleTelemetryStreams = [
     {
       id: 'node-rtu-042',
@@ -76,71 +76,72 @@ export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmen
   return (
     <div className="space-y-6 w-full text-white font-['Segoe_UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif]">
       {/* Overview Card */}
-      <div className="bg-[#111622] border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(0,229,255,0.08)] hover:border-cyan-400/50 transition-all duration-300">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-cyan-500/20 pb-5">
+      <div className="bg-[#1C2541] border border-[#3A506B] rounded-xl p-6 shadow-[0_0_20px_rgba(111,255,233,0.06)] hover:border-[#6FFFE9] transition-all duration-300">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#3A506B] pb-5">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+              <div className="p-2 rounded-lg bg-[#0B132B] border border-[#3A506B] text-[#6FFFE9]">
                 <Activity className="w-5 h-5" />
               </div>
               <h2 className="text-base font-bold text-white tracking-tight">
                 Live HVAC Telemetry Streams & IoT Device Twins
               </h2>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-[#BCF8EC] mt-1">
               Active BACnet/IP to Azure IoT Hub bridge gateways streaming temperature, static pressure, and compressor diagnostics
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 px-3.5 py-1.5 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.2)] font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34D399]" />
+          <div className="flex items-center gap-2 text-xs font-mono bg-[#142A20] text-[#22C55E] border border-[#22C55E]/50 px-3.5 py-1.5 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.2)] font-bold">
+            <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse shadow-[0_0_6px_#22C55E]" />
             <span>85 Gateways Synced | 0 Packet Drops</span>
           </div>
         </div>
 
-        {/* Telemetry Stats Grid */}
+        {/* Telemetry Stats Grid - Exact 4 KPI Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div className="bg-[#0B101D] border border-cyan-500/30 rounded-xl p-5 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] transition-all duration-300">
-            <span className="text-xs font-bold text-slate-300 uppercase font-mono">Avg Messages / Min</span>
+          <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.15)] transition-all duration-300">
+            <span className="text-xs font-bold text-[#BCF8EC] uppercase font-mono">Avg Messages / Min</span>
             <div className="text-2xl font-black text-white font-mono mt-1.5">1,420 msgs</div>
-            <span className="text-[11px] text-cyan-300 font-semibold">Into Canada Central S1 Hub</span>
+            <span className="text-[11px] text-[#6FFFE9] font-semibold">Into Canada Central S1 Hub</span>
           </div>
 
-          <div className="bg-[#0B101D] border border-cyan-500/30 rounded-xl p-5 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] transition-all duration-300">
-            <span className="text-xs font-bold text-slate-300 uppercase font-mono">Active Telemetry Tags</span>
+          <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.15)] transition-all duration-300">
+            <span className="text-xs font-bold text-[#BCF8EC] uppercase font-mono">Active Telemetry Tags</span>
             <div className="text-2xl font-black text-white font-mono mt-1.5">3,480 points</div>
-            <span className="text-[11px] text-cyan-300 font-semibold">Temperatures, VFD Hz, kW</span>
+            <span className="text-[11px] text-[#6FFFE9] font-semibold">Temperatures, VFD Hz, kW</span>
           </div>
 
-          <div className="bg-[#0B101D] border border-cyan-500/30 rounded-xl p-5 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] transition-all duration-300">
-            <span className="text-xs font-bold text-slate-300 uppercase font-mono">Stream Analytics Rate</span>
-            <div className="text-2xl font-black text-emerald-400 font-mono mt-1.5">3.0 Streaming Units</div>
-            <span className="text-[11px] text-slate-300 font-semibold">Auto-scaling enabled</span>
+          <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.15)] transition-all duration-300">
+            <span className="text-xs font-bold text-[#BCF8EC] uppercase font-mono">Stream Analytics Rate</span>
+            <div className="text-2xl font-black text-[#22C55E] font-mono mt-1.5">3.0 Streaming Units</div>
+            <span className="text-[11px] text-[#BCF8EC] font-semibold">Auto-scaling enabled</span>
           </div>
 
-          <div className="bg-[#0B101D] border border-cyan-500/30 rounded-xl p-5 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] transition-all duration-300">
-            <span className="text-xs font-bold text-slate-300 uppercase font-mono">Daily Ingestion Cost</span>
-            <div className="text-2xl font-black text-[#00E5FF] font-mono mt-1.5 neon-text-glow">$142.80 CAD/day</div>
-            <span className="text-[11px] text-slate-300 font-semibold">Normalized across fleet</span>
+          <div className="bg-[#0B132B] border border-[#3A506B] rounded-xl p-5 hover:border-[#6FFFE9] hover:shadow-[0_0_15px_rgba(111,255,233,0.15)] transition-all duration-300">
+            <span className="text-xs font-bold text-[#BCF8EC] uppercase font-mono">Daily Ingestion Cost</span>
+            <div className="text-2xl font-black text-[#6FFFE9] font-mono mt-1.5 cyan-text-glow">$142.80 CAD/day</div>
+            <span className="text-[11px] text-[#BCF8EC] font-semibold">Normalized across fleet</span>
           </div>
         </div>
       </div>
 
       {/* Stream Inspect Table */}
-      <div className="bg-[#111622] border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(0,229,255,0.08)] hover:border-cyan-400/50 transition-all duration-300 space-y-4">
+      <div className="bg-[#1C2541] border border-[#3A506B] rounded-xl p-6 shadow-[0_0_20px_rgba(111,255,233,0.06)] hover:border-[#6FFFE9] transition-all duration-300 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-white">
             Real-Time Sample Ingestion Log (Live Feed)
           </h3>
-          <span className="text-xs font-mono text-cyan-300 bg-cyan-950/80 px-2.5 py-1 rounded-full border border-cyan-500/40">
-            Auto-refreshing every 5s
+          <span className="text-xs font-mono text-[#6FFFE9] bg-[#0B132B] px-3 py-1 rounded-full border border-[#3A506B] flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#6FFFE9] animate-ping" />
+            <span>Auto-refreshing every 5s (Cycle #{pulseCount})</span>
           </span>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-slate-800 shadow-inner">
+        <div className="overflow-x-auto rounded-lg border border-[#3A506B] shadow-inner">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-[#0B101D] border-b border-slate-800 text-slate-300 font-bold text-xs uppercase tracking-wider font-mono">
+              <tr className="bg-[#0B132B] border-b border-[#3A506B] text-[#BCF8EC] font-bold text-xs uppercase tracking-wider font-mono">
                 <th className="py-3.5 px-4">Device Node ID / Site</th>
                 <th className="py-3.5 px-4">Equipment Model</th>
                 <th className="py-3.5 px-4">GTA Zone</th>
@@ -149,24 +150,24 @@ export const FleetTelemetryView: React.FC<FleetTelemetryViewProps> = ({ equipmen
                 <th className="py-3.5 px-4 text-right">Daily Cost</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80 bg-[#0E131F] font-mono">
+            <tbody className="divide-y divide-[#3A506B]/50 bg-[#0E172F] font-mono">
               {sampleTelemetryStreams.map((stream) => (
-                <tr key={stream.id} className="hover:bg-[#161F32] transition-colors">
+                <tr key={stream.id} className="hover:bg-[#1C2541] transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="font-bold text-white">{stream.id}</div>
-                    <div className="text-[11px] text-slate-300 font-sans">{stream.name}</div>
+                    <div className="text-[11px] text-[#BCF8EC] font-sans">{stream.name}</div>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-200 font-sans font-medium">{stream.type}</td>
-                  <td className="py-3.5 px-4 text-slate-300 font-sans">{stream.zone}</td>
+                  <td className="py-3.5 px-4 text-white font-sans font-medium">{stream.type}</td>
+                  <td className="py-3.5 px-4 text-[#BCF8EC] font-sans">{stream.zone}</td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-950/80 text-[#00E5FF] border border-cyan-500/50 text-[11px] font-bold">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#0B132B] text-[#6FFFE9] border border-[#6FFFE9]/50 text-[11px] font-bold">
                       {stream.pingRate}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-300 text-[11px]">
+                  <td className="py-3.5 px-4 text-[#BCF8EC] text-[11px]">
                     {stream.lastPayload}
                   </td>
-                  <td className="py-3.5 px-4 text-right font-black text-[#00E5FF] neon-text-glow">
+                  <td className="py-3.5 px-4 text-right font-black text-[#6FFFE9] cyan-text-glow">
                     ${stream.dailyCostCad.toFixed(2)} CAD
                   </td>
                 </tr>

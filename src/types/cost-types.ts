@@ -7,8 +7,8 @@ export interface AzureCostItem {
   azureMeterCategory: string;
   hvacBusinessPurpose: string;
   equipmentTag: string;
-  equipmentCategory: 'Chillers' | 'Water-Cooled Chillers' | 'Rooftop Units (RTUs)' | 'Commercial Boilers' | 'VRF Systems' | 'Air Handling Units (AHUs)' | 'Pumping Systems';
-  gtaZone: 'Mississauga' | 'Downtown Toronto' | 'Markham' | 'Vaughan' | 'Brampton' | 'Etobicoke';
+  equipmentCategory: 'Rooftop Units (RTUs)' | 'Water-Cooled Chillers' | 'Commercial Boilers' | 'Air Handling Units' | 'VRF Heat Recovery' | 'Centrifugal Pumps' | 'Chillers' | 'VRF Systems' | 'Air Handling Units (AHUs)' | 'Pumping Systems' | string;
+  gtaZone: 'Mississauga' | 'Downtown Toronto' | 'Markham' | 'Vaughan' | 'Brampton' | 'Etobicoke' | string;
   clientPortfolio: string;
   monitoredUnitsCount: number;
   costCadMtd: number;
