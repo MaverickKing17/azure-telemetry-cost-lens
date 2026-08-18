@@ -27,8 +27,12 @@ export const GtaHvacFooter: React.FC<GtaHvacFooterProps> = ({ onOpenLegal }) => 
         {/* Column 1: Brand & Industry Compliance */}
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#0078D4] to-[#6FFFE9] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(111,255,233,0.4)]">
-              <Zap className="w-5 h-5 text-[#0B132B]" fill="currentColor" />
+            <div className="w-8 h-8 rounded-lg overflow-hidden border border-[#6FFFE9]/50 shadow-[0_0_15px_rgba(111,255,233,0.35)] shrink-0 bg-[#0B132B]">
+              <img 
+                src="https://i.ibb.co/cXyp2NQr/Gemini-Generated-Image-5hu38a5hu38a5hu3.jpg" 
+                alt="NexusHVAC Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="font-mono text-lg font-bold tracking-tight text-white">
               NEXUS<span className="text-[#6FFFE9] cyan-text-glow">HVAC</span>

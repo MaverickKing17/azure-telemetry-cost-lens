@@ -59,9 +59,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Brand & Navigation */}
       <div>
         {/* Brand Header */}
-        <div className="p-6 border-b border-[#3A506B] flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-[#0078D4] to-[#6FFFE9] rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(111,255,233,0.35)]">
-            <Zap className="w-5 h-5 text-white" fill="white" />
+        <div className="p-5 border-b border-[#3A506B] flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-[#6FFFE9]/50 shadow-[0_0_15px_rgba(111,255,233,0.35)] shrink-0 bg-[#0B132B]">
+            <img 
+              src="https://i.ibb.co/cXyp2NQr/Gemini-Generated-Image-5hu38a5hu38a5hu3.jpg" 
+              alt="NexusHVAC Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <div className="text-base font-bold tracking-tight text-[#FFFFFF] flex items-center gap-1 font-mono">
